@@ -39,23 +39,15 @@ export async function seedDatabase(db: Firestore) {
   // Seed videos
   videos.forEach(video => {
     const { id, categoryId, ...videoData } = video;
-    // The data model has videos nested under categories, but mock data doesn't align.
-    // For seeding, videos are placed in a top-level collection.
-    // This might be a source of permission errors if rules expect a different path.
-    if (categoryId) {
-        const docRef = doc(db, 'categories', categoryId, 'videos', id);
-        batch.set(docRef, videoData);
-    } else {
-        const docRef = doc(db, 'videos', id);
-        batch.set(docRef, videoData);
-    }
+    const docRef = doc(db, 'videos', id);
+    batch.set(docRef, { ...videoData, categoryId });
   });
 
   // Seed video logs
   videoLogs.forEach(log => {
-    const { id, userId, ...logData } = log;
+    const { id, userId, videoId, ...logData } = log;
     const docRef = doc(db, 'users', userId, 'videoLogs', id);
-    batch.set(docRef, logData);
+    batch.set(docRef, { userId, videoId, ...logData });
   });
 
   // Seed pricing document
