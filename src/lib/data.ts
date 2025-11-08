@@ -207,12 +207,12 @@ export const videos: Video[] = [
     { id: 'vid-7', title: 'Cosmic Drifters', description: 'Sequel to the Galactic Warriors.', duration: 7500, thumbnailId: 'thumb-scifi-2', categoryId: 'cat-1-3-1', accessLevel: 'token', tokenCost: 10, tags: ['sci-fi', 'space opera'] },
     { id: 'vid-8', title: 'Laugh Riot', description: 'More jokes from your favorite comedian.', duration: 4200, thumbnailId: 'thumb-comedy-2', categoryId: 'cat-1-2', accessLevel: 'free', tags: ['comedy', 'live'] },
     { id: 'vid-9', title: 'The Roman Empire', description: 'The rise and fall of a great civilization.', duration: 5000, thumbnailId: 'thumb-drama-2', categoryId: 'cat-2-2', accessLevel: 'subscription', tags: ['history', 'documentary', 'rome'] },
-    { id: 'vid-10', name: 'Mastering the Art of Pasta', description: 'A comprehensive guide to making fresh pasta from scratch.', duration: 4800, thumbnailId: 'thumb-cooking-1', categoryId: 'cat-3-2', accessLevel: 'subscription', tags: ['cooking', 'hobby', 'food', 'pasta'] },
-    { id: 'vid-11', name: 'Starcraft Pro-Tips', description: 'Learn advanced strategies from a top-tier Starcraft player.', duration: 3200, thumbnailId: 'thumb-gaming-1', categoryId: 'cat-3-1-1', accessLevel: 'token', tokenCost: 3, tags: ['gaming', 'strategy', 'esports'] },
-    { id: 'vid-12', name: 'Quantum Physics Explained', description: 'A simple explanation of a complex topic.', duration: 2200, thumbnailId: 'thumb-science-1', categoryId: 'cat-2-1', accessLevel: 'free', tags: ['science', 'physics', 'education'] },
-    { id: 'vid-13', name: 'Guitar Basics: Your First Chords', description: 'Start your musical journey by learning the essential guitar chords.', duration: 1800, thumbnailId: 'thumb-music-1', categoryId: 'cat-3-3', accessLevel: 'free', tags: ['music', 'hobby', 'guitar', 'beginner'] },
-    { id: 'vid-14', name: 'The World of Eldoria: A Fantasy RPG', description: 'A deep dive into the lore and mechanics of the hit RPG Eldoria.', duration: 5500, thumbnailId: 'thumb-gaming-2', categoryId: 'cat-3-1-2', accessLevel: 'token', tokenCost: 5, tags: ['gaming', 'rpg', 'fantasy'] },
-    { id: 'vid-15', name: 'Van Gogh: A Life in Color', description: 'An intimate look at the life and works of Vincent van Gogh.', duration: 4900, thumbnailId: 'thumb-artist-1', categoryId: 'cat-4-2', accessLevel: 'subscription', tags: ['biography', 'art', 'history'] },
+    { id: 'vid-10', title: 'Mastering the Art of Pasta', description: 'A comprehensive guide to making fresh pasta from scratch.', duration: 4800, thumbnailId: 'thumb-cooking-1', categoryId: 'cat-3-2', accessLevel: 'subscription', tags: ['cooking', 'hobby', 'food', 'pasta'] },
+    { id: 'vid-11', title: 'Starcraft Pro-Tips', description: 'Learn advanced strategies from a top-tier Starcraft player.', duration: 3200, thumbnailId: 'thumb-gaming-1', categoryId: 'cat-3-1-1', accessLevel: 'token', tokenCost: 3, tags: ['gaming', 'strategy', 'esports'] },
+    { id: 'vid-12', title: 'Quantum Physics Explained', description: 'A simple explanation of a complex topic.', duration: 2200, thumbnailId: 'thumb-science-1', categoryId: 'cat-2-1', accessLevel: 'free', tags: ['science', 'physics', 'education'] },
+    { id: 'vid-13', title: 'Guitar Basics: Your First Chords', description: 'Start your musical journey by learning the essential guitar chords.', duration: 1800, thumbnailId: 'thumb-music-1', categoryId: 'cat-3-3', accessLevel: 'free', tags: ['music', 'hobby', 'guitar', 'beginner'] },
+    { id: 'vid-14', title: 'The World of Eldoria: A Fantasy RPG', description: 'A deep dive into the lore and mechanics of the hit RPG Eldoria.', duration: 5500, thumbnailId: 'thumb-gaming-2', categoryId: 'cat-3-1-2', accessLevel: 'token', tokenCost: 5, tags: ['gaming', 'rpg', 'fantasy'] },
+    { id: 'vid-15', title: 'Van Gogh: A Life in Color', description: 'An intimate look at the life and works of Vincent van Gogh.', duration: 4900, thumbnailId: 'thumb-artist-1', categoryId: 'cat-4-2', accessLevel: 'subscription', tags: ['biography', 'art', 'history'] },
 ];
 
 // --- PRICING PLANS ---
@@ -280,3 +280,5 @@ export const videoLogs: VideoLog[] = [
     { id: 'log-12', userId: 'user-admin', videoId: 'vid-12', watchedAt: new Date().getTime() - 604800000, progress: 100 },
     { id: 'log-13', userId: 'user-subscribed-pro', videoId: 'vid-9', watchedAt: new Date().getTime() - 691200000, progress: 85 },
 ];
+
+    
