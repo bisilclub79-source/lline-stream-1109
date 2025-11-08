@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -20,9 +19,10 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { useState } from 'react';
-import { useFirebase } from '@/firebase';
+import { useFirebase, useUser } from '@/firebase';
 import { seedDatabase } from '@/lib/seed';
 import { useToast } from '@/hooks/use-toast';
+import { signOut } from 'firebase/auth';
 
 
 const navLinks = [
@@ -32,9 +32,9 @@ const navLinks = [
 ];
 
 export default function Header() {
-  const { user, loading, logout } = useAuth();
+  const { user, isUserLoading } = useUser();
+  const { auth, firestore } = useFirebase();
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { firestore } = useFirebase();
   const { toast } = useToast();
 
   const handleSeed = async () => {
@@ -65,46 +65,60 @@ export default function Header() {
     }
   }
 
-  const UserMenu = () => (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          className="flex items-center gap-2 rounded-full h-10 px-2"
-        >
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={user?.photoURL || ''} alt={user?.displayName || 'User'} />
-            <AvatarFallback>{user?.displayName?.charAt(0) || 'U'}</AvatarFallback>
-          </Avatar>
-          <span className="hidden md:inline">{user?.displayName}</span>
-          <ChevronDown className="h-4 w-4 hidden md:inline" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel>My Account</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <Link href="/account">
-            <User className="mr-2 h-4 w-4" />
-            <span>Profile</span>
-          </Link>
-        </DropdownMenuItem>
-        {user?.isAdmin && (
-          <DropdownMenuItem asChild>
-            <Link href="/admin">
-              <LayoutDashboard className="mr-2 h-4 w-4" />
-              <span>Dashboard</span>
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      toast({ title: 'Logged out successfully' });
+    } catch (error) {
+      toast({ variant: 'destructive', title: 'Logout failed' });
+    }
+  };
+
+
+  const UserMenu = () => {
+    // TODO: Add isAdmin check later
+    const isAdmin = user?.email === 'admin@cinestream.com';
+    return (
+        <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+            <Button
+            variant="ghost"
+            className="flex items-center gap-2 rounded-full h-10 px-2"
+            >
+            <Avatar className="h-8 w-8">
+                <AvatarImage src={user?.photoURL || ''} alt={user?.displayName || 'User'} />
+                <AvatarFallback>{user?.displayName?.charAt(0) || 'U'}</AvatarFallback>
+            </Avatar>
+            <span className="hidden md:inline">{user?.displayName}</span>
+            <ChevronDown className="h-4 w-4 hidden md:inline" />
+            </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+            <Link href="/account">
+                <User className="mr-2 h-4 w-4" />
+                <span>Profile</span>
             </Link>
-          </DropdownMenuItem>
-        )}
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={logout}>
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>Log out</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
+            </DropdownMenuItem>
+            {isAdmin && (
+            <DropdownMenuItem asChild>
+                <Link href="/admin">
+                <LayoutDashboard className="mr-2 h-4 w-4" />
+                <span>Dashboard</span>
+                </Link>
+            </DropdownMenuItem>
+            )}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleLogout}>
+            <LogOut className="mr-2 h-4 w-4" />
+            <span>Log out</span>
+            </DropdownMenuItem>
+        </DropdownMenuContent>
+        </DropdownMenu>
+    );
+  }
 
   const AuthButtons = () => (
     <div className="flex items-center gap-2">
@@ -116,6 +130,9 @@ export default function Header() {
       )}
       <Button asChild>
         <Link href="/login">Login</Link>
+      </Button>
+      <Button asChild variant="secondary">
+        <Link href="/signup">Sign Up</Link>
       </Button>
     </div>
   );
@@ -174,7 +191,7 @@ export default function Header() {
         </div>
 
         <div className="flex items-center gap-4">
-          {!loading && (user ? <UserMenu /> : <AuthButtons />)}
+          {!isUserLoading && (user ? <UserMenu /> : <AuthButtons />)}
           <MobileNav />
         </div>
       </div>

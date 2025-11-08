@@ -4,9 +4,9 @@ import Link from 'next/link';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
-
+import { useAuth } from '@/firebase';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -27,7 +27,7 @@ const formSchema = z.object({
 });
 
 export default function SignupPage() {
-  const { signup } = useAuth();
+  const auth = useAuth();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -42,17 +42,23 @@ export default function SignupPage() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      await signup(values.displayName);
+      const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+      
+      // Update user profile with display name
+      await updateProfile(userCredential.user, {
+        displayName: values.displayName,
+      });
+
       toast({
         title: 'Account Created',
         description: "Welcome to CineStream!",
       });
       router.push('/');
-    } catch (error) {
+    } catch (error: any) {
       toast({
         variant: "destructive",
         title: 'Signup Failed',
-        description: 'Could not create account. Please try again.',
+        description: error.message || 'Could not create account. Please try again.',
       });
     }
   }

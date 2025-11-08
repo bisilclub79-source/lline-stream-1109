@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
@@ -20,6 +19,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
+import { useAuth } from '@/firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email.' }),
@@ -27,7 +28,7 @@ const formSchema = z.object({
 });
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const auth = useAuth();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -39,22 +40,19 @@ export default function LoginPage() {
     },
   });
 
-  // Mock login handler
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      // In a real app, you'd verify email/password. Here we just log in a user.
-      // We'll log in the subscribed user for demonstration.
-      await login('user-subscribed');
+      await signInWithEmailAndPassword(auth, values.email, values.password);
       toast({
         title: 'Login Successful',
         description: "Welcome back!",
       });
       router.push('/account');
-    } catch (error) {
+    } catch (error: any) {
       toast({
         variant: "destructive",
         title: 'Login Failed',
-        description: 'Invalid credentials. Please try again.',
+        description: error.message || 'Invalid credentials. Please try again.',
       });
     }
   }
