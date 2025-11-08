@@ -38,7 +38,14 @@ export default function Header() {
   const { toast } = useToast();
 
   const handleSeed = async () => {
-    if (!firestore) return;
+    if (!firestore) {
+        toast({
+            variant: 'destructive',
+            title: 'Firestore not available',
+            description: 'Please try again later.',
+        });
+        return;
+    };
     toast({
         title: 'Seeding Database...',
         description: 'Please wait while we populate the database with sample data.',
@@ -53,7 +60,7 @@ export default function Header() {
         toast({
             variant: 'destructive',
             title: 'Error Seeding Database',
-            description: 'There was an error. Check the console for details.',
+            description: 'There was an error. Check the developer console for details.',
         });
     }
   }

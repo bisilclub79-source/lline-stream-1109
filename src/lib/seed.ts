@@ -1,14 +1,14 @@
 'use client';
 
 import {
-  collection,
-  doc,
-  setDoc,
   writeBatch,
   type Firestore,
+  doc,
 } from 'firebase/firestore';
 import { users, categories, videos, pricingPlans, videoLogs } from './data';
 import { type PricingPlan } from './types';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 // Separate pricing plans by type
 const subscriptionPrices = pricingPlans.filter(p => p.type === 'subscription');
@@ -38,19 +38,22 @@ export async function seedDatabase(db: Firestore) {
 
   // Seed videos
   videos.forEach(video => {
-    const { id, ...videoData } = video;
-    // Videos are nested under categories in firestore structure for this project, but backend.json shows categories/{categoryId}/videos/{videoId} which is not correct for top-level videos.
-    // The prompt says videos collection.
-    // backend.json: /categories/{categoryId}/videos/{videoId}. The data model doesn't support this easily with the mock data.
-    // I will put videos in a top level collection for now.
-    const docRef = doc(db, 'videos', id);
-    batch.set(docRef, videoData);
+    const { id, categoryId, ...videoData } = video;
+    // The data model has videos nested under categories, but mock data doesn't align.
+    // For seeding, videos are placed in a top-level collection.
+    // This might be a source of permission errors if rules expect a different path.
+    if (categoryId) {
+        const docRef = doc(db, 'categories', categoryId, 'videos', id);
+        batch.set(docRef, videoData);
+    } else {
+        const docRef = doc(db, 'videos', id);
+        batch.set(docRef, videoData);
+    }
   });
 
   // Seed video logs
   videoLogs.forEach(log => {
     const { id, userId, ...logData } = log;
-    // path: /users/{userId}/videoLogs/{videoLogId}
     const docRef = doc(db, 'users', userId, 'videoLogs', id);
     batch.set(docRef, logData);
   });
@@ -59,13 +62,26 @@ export async function seedDatabase(db: Firestore) {
   const pricingRef = doc(db, 'settings', 'pricing');
   batch.set(pricingRef, pricingData);
 
+  // Non-blocking commit with detailed error handling
+  return batch.commit()
+    .then(() => {
+        console.log('Database seeded successfully!');
+        return { success: true };
+    })
+    .catch((error) => {
+      // The batch write failed, likely due to a security rule violation.
+      // We don't know which specific write in the batch failed, so we
+      // report a general write error on the database root.
+      const contextualError = new FirestorePermissionError({
+        path: '/', // The operation is on the root or multiple paths
+        operation: 'write',
+        // We can't easily provide the data for a large batch, so it's omitted.
+      });
 
-  try {
-    await batch.commit();
-    console.log('Database seeded successfully!');
-    return { success: true };
-  } catch (error) {
-    console.error('Error seeding database:', error);
-    return { success: false, error };
-  }
+      // Emit the centralized error for the development overlay
+      errorEmitter.emit('permission-error', contextualError);
+
+      console.error('Error seeding database:', error); // Keep original console error
+      return { success: false, error: contextualError };
+    });
 }
