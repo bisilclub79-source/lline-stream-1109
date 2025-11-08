@@ -1,90 +1,397 @@
-import { getPricingPlans } from '@/lib/api';
-import { Button } from '@/components/ui/button';
+'use client';
+
+import React, { useState, useEffect, useMemo } from 'react';
+import { useUser } from '@/hooks/use-user';
+import { useRouter } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
+import { processPayment } from '@/app/actions/payment';
+
+import { doc, getDoc } from 'firebase/firestore';
+import { useFirestore, useCollection } from '@/firebase';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Check } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Plus, Minus, CreditCard, ShoppingCart } from 'lucide-react';
+import type { Category } from '@/lib/types';
 
-export default async function PricingPage() {
-  const plans = await getPricingPlans();
-  const subscriptionPlans = plans.filter(p => p.type === 'subscription');
-  const tokenPlans = plans.filter(p => p.type === 'token');
+// Define types for pricing data
+interface SubscriptionPrice {
+  id: string;
+  name: string;
+  duration: string;
+  price: number;
+}
+interface TokenPackage {
+  id: string;
+  name: string;
+  tokens: number;
+  price: number;
+}
+interface PricingData {
+  subscriptionPrices: SubscriptionPrice[];
+  tokenPackagePrices: TokenPackage[];
+}
 
-  const subscriptionFeatures = [
-    "Unlimited access to subscription videos",
-    "Stream on up to 4 devices",
-    "HD and 4K streaming",
-    "Cancel anytime",
-  ];
+interface SelectedSubscription {
+  categoryId: string;
+  categoryName: string;
+  planId: string;
+  planName: string;
+  price: number;
+}
+
+interface SelectedTokenPackage {
+  packageId: string;
+  packageName: string;
+  quantity: number;
+  price: number;
+}
+
+export default function PricingPage() {
+  const { user, isLoading: isUserLoading } = useUser();
+  const firestore = useFirestore();
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const [pricingData, setPricingData] = useState<PricingData | null>(null);
+  const [isPricingLoading, setIsPricingLoading] = useState(true);
+
+  const { data: categories, isLoading: areCategoriesLoading } = useCollection<Category>(
+    useMemo(() => {
+      if (!firestore) return null;
+      return doc(firestore, 'categories');
+    }, [firestore])
+  );
+  
+  const [selectedSubs, setSelectedSubs] = useState<Record<string, SelectedSubscription>>({});
+  const [selectedTokens, setSelectedTokens] = useState<Record<string, SelectedTokenPackage>>({});
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  // Fetch pricing data from Firestore
+  useEffect(() => {
+    if (!firestore) return;
+    const fetchPricing = async () => {
+      setIsPricingLoading(true);
+      const pricingRef = doc(firestore, 'settings', 'pricing');
+      const pricingSnap = await getDoc(pricingRef);
+      if (pricingSnap.exists()) {
+        setPricingData(pricingSnap.data() as PricingData);
+      } else {
+        toast({
+          variant: 'destructive',
+          title: '오류',
+          description: '가격 정보를 불러오지 못했습니다.',
+        });
+      }
+      setIsPricingLoading(false);
+    };
+    fetchPricing();
+  }, [firestore, toast]);
+  
+  const topLevelCategories = useMemo(() => {
+    if (!categories) return [];
+    const categoryMap = new Map(categories.map(c => [c.id, {...c, children: [] as Category[]}]));
+    const roots: (Category & { children: Category[] })[] = [];
+
+    categories.forEach(cat => {
+      if (cat.parentId) {
+        categoryMap.get(cat.parentId)?.children.push(categoryMap.get(cat.id)!);
+      } else {
+        roots.push(categoryMap.get(cat.id)!);
+      }
+    });
+    return roots;
+  }, [categories]);
+
+  const handleSubSwitch = (categoryId: string, categoryName: string, checked: boolean) => {
+    if (!checked) {
+      setSelectedSubs(prev => {
+        const newState = { ...prev };
+        delete newState[categoryId];
+        return newState;
+      });
+    }
+  };
+
+  const handleSubPlanSelect = (categoryId: string, categoryName: string, plan: SubscriptionPrice) => {
+    setSelectedSubs(prev => ({
+      ...prev,
+      [categoryId]: {
+        categoryId,
+        categoryName,
+        planId: plan.id,
+        planName: plan.name,
+        price: plan.price,
+      },
+    }));
+  };
+
+  const handleTokenQuantityChange = (pkg: TokenPackage, change: number) => {
+    setSelectedTokens(prev => {
+      const current = prev[pkg.id] || { packageId: pkg.id, packageName: pkg.name, quantity: 0, price: pkg.price };
+      const newQuantity = Math.max(0, current.quantity + change);
+      const newState = { ...prev };
+      if (newQuantity === 0) {
+        delete newState[pkg.id];
+      } else {
+        newState[pkg.id] = { ...current, quantity: newQuantity };
+      }
+      return newState;
+    });
+  };
+
+  const totalAmount = useMemo(() => {
+    const subTotal = Object.values(selectedSubs).reduce((sum, sub) => sum + sub.price, 0);
+    const tokenTotal = Object.values(selectedTokens).reduce((sum, pkg) => sum + (pkg.price * pkg.quantity), 0);
+    return subTotal + tokenTotal;
+  }, [selectedSubs, selectedTokens]);
+  
+  const orderName = useMemo(() => {
+    const subCount = Object.keys(selectedSubs).length;
+    const tokenCount = Object.keys(selectedTokens).length;
+    let name = '';
+    if (subCount > 0) {
+        name = `${Object.values(selectedSubs)[0].categoryName}`;
+    } else if (tokenCount > 0) {
+        name = `${Object.values(selectedTokens)[0].packageName}`;
+    }
+
+    const totalItems = subCount + tokenCount;
+    if (totalItems > 1) {
+        name += ` 외 ${totalItems - 1}건`;
+    }
+    return name || '주문 내역 없음';
+  }, [selectedSubs, selectedTokens]);
+
+  const handlePayment = async () => {
+    if (!user) {
+      toast({ variant: 'destructive', title: '로그인이 필요합니다.' });
+      router.push('/login');
+      return;
+    }
+    if (totalAmount === 0) {
+      toast({ variant: 'destructive', title: '상품을 선택해주세요.' });
+      return;
+    }
+    setIsProcessing(true);
+
+    const paymentId = `payment-${Date.now()}`;
+    const customData = {
+        userId: user.uid,
+        selectedSubs: Object.values(selectedSubs),
+        selectedTokens: Object.values(selectedTokens),
+        totalAmount,
+    };
+
+    if (typeof window.PortOne === 'undefined') {
+        toast({ variant: 'destructive', title: '결제 모듈을 로드하지 못했습니다.'});
+        setIsProcessing(false);
+        return;
+    }
+
+    try {
+        const response = await window.PortOne.requestPayment({
+            storeId: 'store-b39f33eb-e7e5-4067-b710-c76173e988bd',
+            channelKey: 'channel-key-317044ec-1dc4-4dfd-8e4f-ae84ba732142',
+            paymentId,
+            orderName,
+            totalAmount,
+            customer: {
+                customerId: user.uid,
+                fullName: user.displayName,
+                email: user.email,
+                phoneNumber: user.phoneNumber,
+            },
+            customData,
+            isTest: true,
+        });
+
+        if (response?.paymentId) {
+            const result = await processPayment(response.paymentId);
+            if (result.status === 'success') {
+                toast({ title: '결제 성공', description: '결제가 성공적으로 완료되었습니다.' });
+                router.refresh();
+            } else {
+                toast({ variant: 'destructive', title: '결제 처리 실패', description: result.message });
+            }
+        } else {
+            toast({ variant: 'destructive', title: '결제 실패', description: response?.message || '결제 중 오류가 발생했습니다.' });
+        }
+    } catch (error) {
+        console.error('결제 요청 중 예외 발생:', error);
+        toast({ variant: 'destructive', title: '결제 오류', description: '결제 시스템에 예기치 않은 문제가 발생했습니다.' });
+    } finally {
+        setIsProcessing(false);
+    }
+  };
+  
+  const isLoading = isUserLoading || areCategoriesLoading || isPricingLoading;
+
+  if (isLoading) {
+    return (
+        <div className="container mx-auto max-w-7xl py-12 px-4">
+            <Skeleton className="h-10 w-64 mb-10" />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                <div className="lg:col-span-2 space-y-6">
+                    <Skeleton className="h-48 w-full" />
+                    <Skeleton className="h-32 w-full" />
+                </div>
+                <Skeleton className="h-64 w-full" />
+            </div>
+        </div>
+    );
+  }
 
   return (
-    <div className="container mx-auto max-w-5xl py-12 px-4 sm:py-16 lg:py-20">
-      <div className="text-center">
-        <h1 className="text-4xl font-extrabold tracking-tight font-headline sm:text-5xl">
-          Choose Your Plan
+    <div className="container mx-auto max-w-7xl py-12 px-4">
+      <header className="mb-10">
+        <h1 className="text-4xl font-extrabold tracking-tight font-headline text-center">
+          나의 요금제 만들기
         </h1>
-        <p className="mt-4 text-lg text-muted-foreground">
-          Unlock the best of cinema with our flexible plans.
+        <p className="mt-2 text-lg text-muted-foreground text-center">
+          원하는 콘텐츠만 골라 합리적인 플랜을 직접 설계하세요.
         </p>
-      </div>
+      </header>
 
-      <div className="mt-12 space-y-12">
-        {/* Subscription Plans */}
-        <div>
-          <h2 className="text-2xl font-bold text-center font-headline sm:text-3xl">Subscriptions</h2>
-          <div className="mt-8 grid gap-8 md:grid-cols-2">
-            {subscriptionPlans.map(plan => (
-              <Card key={plan.id} className="flex flex-col">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        {/* 상품 선택 영역 */}
+        <div className="lg:col-span-2 space-y-8">
+            {/* 구독 상품 */}
+            <Card>
                 <CardHeader>
-                  <CardTitle className="text-xl font-headline">{plan.name}</CardTitle>
-                  <CardDescription>{plan.description}</CardDescription>
+                    <CardTitle>구독 상품</CardTitle>
+                    <CardDescription>관심있는 카테고리를 선택하고 구독 기간을 설정하세요.</CardDescription>
                 </CardHeader>
-                <CardContent className="flex-1 space-y-6">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-extrabold">${plan.price}</span>
-                    <span className="text-muted-foreground">/{plan.billingCycle === 'monthly' ? 'mo' : 'yr'}</span>
-                  </div>
-                  <ul className="space-y-3 text-sm">
-                    {subscriptionFeatures.map((feature, i) => (
-                      <li key={i} className="flex items-center gap-2">
-                        <Check className="h-4 w-4 text-primary" />
-                        <span className="text-muted-foreground">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
+                <CardContent>
+                    <Accordion type="multiple" className="w-full">
+                        {topLevelCategories.map(cat => (
+                            <AccordionItem value={cat.id} key={cat.id}>
+                                <AccordionTrigger className="text-lg font-semibold">{cat.name}</AccordionTrigger>
+                                <AccordionContent>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                                        {cat.children.map(subCat => (
+                                            <Card key={subCat.id} className={selectedSubs[subCat.id] ? 'border-primary' : ''}>
+                                                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                                                    <div>
+                                                        <CardTitle className="text-base">{subCat.name}</CardTitle>
+                                                        {subCat.instructor && <CardDescription>by {subCat.instructor}</CardDescription>}
+                                                    </div>
+                                                    <Switch 
+                                                        checked={!!selectedSubs[subCat.id]}
+                                                        onCheckedChange={(checked) => handleSubSwitch(subCat.id, subCat.name, checked)}
+                                                    />
+                                                </CardHeader>
+                                                {selectedSubs[subCat.id] && (
+                                                    <CardContent>
+                                                        <div className="flex gap-2 mt-2">
+                                                            {pricingData?.subscriptionPrices.map(plan => (
+                                                                <Button 
+                                                                    key={plan.id}
+                                                                    variant={selectedSubs[subCat.id]?.planId === plan.id ? 'default' : 'outline'}
+                                                                    size="sm"
+                                                                    onClick={() => handleSubPlanSelect(subCat.id, subCat.name, plan)}
+                                                                >
+                                                                    {plan.duration} ({plan.price.toLocaleString()}원)
+                                                                </Button>
+                                                            ))}
+                                                        </div>
+                                                    </CardContent>
+                                                )}
+                                            </Card>
+                                        ))}
+                                    </div>
+                                </AccordionContent>
+                            </AccordionItem>
+                        ))}
+                    </Accordion>
                 </CardContent>
-                <CardFooter>
-                  <Button className="w-full font-bold">Choose Plan</Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
+            </Card>
+
+            {/* 토큰 구매 */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>토큰 구매</CardTitle>
+                    <CardDescription>프리미엄 콘텐츠를 시청할 수 있는 토큰을 구매하세요.</CardDescription>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {pricingData?.tokenPackagePrices.map(pkg => (
+                        <Card key={pkg.id}>
+                            <CardHeader>
+                                <CardTitle className="text-lg">{pkg.name}</CardTitle>
+                                <CardDescription>{pkg.tokens.toLocaleString()} tokens</CardDescription>
+                            </CardHeader>
+                            <CardContent className="flex items-center justify-between">
+                                <p className="text-xl font-bold">{pkg.price.toLocaleString()}원</p>
+                                <div className="flex items-center gap-2">
+                                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleTokenQuantityChange(pkg, -1)}>
+                                        <Minus className="h-4 w-4" />
+                                    </Button>
+                                    <span className="font-bold w-4 text-center">{selectedTokens[pkg.id]?.quantity || 0}</span>
+                                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleTokenQuantityChange(pkg, 1)}>
+                                        <Plus className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </CardContent>
+            </Card>
         </div>
 
-        {/* Token Plans */}
-        <div>
-          <h2 className="text-2xl font-bold text-center font-headline sm:text-3xl">Token Packs</h2>
-           <p className="mt-2 text-center text-muted-foreground">
-            For premium, on-demand video access.
-            </p>
-          <div className="mt-8 grid gap-8 sm:grid-cols-2">
-            {tokenPlans.map(plan => (
-              <Card key={plan.id} className="flex flex-col">
-                <CardHeader>
-                  <CardTitle className="text-xl font-headline">{plan.name}</CardTitle>
-                  <CardDescription>{plan.description}</CardDescription>
-                </CardHeader>
-                <CardContent className="flex-1">
-                  <div className="text-center">
-                    <p className="text-5xl font-extrabold text-primary">{plan.tokenAmount}</p>
-                    <p className="text-muted-foreground">Tokens</p>
-                  </div>
-                </CardContent>
-                <CardFooter className="flex-col gap-4">
-                  <p className="text-3xl font-bold">${plan.price}</p>
-                  <Button variant="outline" className="w-full font-bold">Purchase</Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
+        {/* 결제 요약 카드 */}
+        <div className="lg:sticky top-24">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ShoppingCart className="h-6 w-6" />
+                <span>결제 요약</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2 text-sm max-h-60 overflow-y-auto pr-2">
+                {Object.values(selectedSubs).length === 0 && Object.values(selectedTokens).length === 0 ? (
+                    <p className="text-muted-foreground text-center py-4">선택된 상품이 없습니다.</p>
+                ) : (
+                    <>
+                        {Object.values(selectedSubs).map(sub => (
+                            <div key={sub.categoryId} className="flex justify-between">
+                                <span>구독: {sub.categoryName} ({sub.planName})</span>
+                                <span>{sub.price.toLocaleString()}원</span>
+                            </div>
+                        ))}
+                        {Object.values(selectedTokens).map(pkg => (
+                            <div key={pkg.packageId} className="flex justify-between">
+                                <span>토큰: {pkg.packageName} x{pkg.quantity}</span>
+                                <span>{(pkg.price * pkg.quantity).toLocaleString()}원</span>
+                            </div>
+                        ))}
+                    </>
+                )}
+              </div>
+              <div className="border-t pt-4 space-y-2">
+                <div className="flex justify-between font-bold text-lg">
+                  <span>총 결제 금액</span>
+                  <span>{totalAmount.toLocaleString()}원</span>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button 
+                className="w-full font-bold text-lg py-6"
+                onClick={handlePayment}
+                disabled={isProcessing || totalAmount === 0}
+              >
+                {isProcessing ? '결제 처리 중...' : (
+                    <>
+                        <CreditCard className="mr-2 h-5 w-5"/>
+                        {totalAmount.toLocaleString()}원 결제하기
+                    </>
+                )}
+              </Button>
+            </CardFooter>
+          </Card>
         </div>
       </div>
     </div>
