@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/firebase';
+import { useAuth, useFirestore } from '@/firebase';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
 import {
@@ -19,6 +19,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { doc, setDoc } from 'firebase/firestore';
 
 const formSchema = z.object({
   displayName: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -28,6 +29,7 @@ const formSchema = z.object({
 
 export default function SignupPage() {
   const auth = useAuth();
+  const firestore = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -41,12 +43,35 @@ export default function SignupPage() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!auth || !firestore) {
+        toast({
+            variant: "destructive",
+            title: 'Error',
+            description: 'Firebase is not initialized. Please try again later.',
+        });
+        return;
+    }
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
-      
+      const user = userCredential.user;
+
       // Update user profile with display name
-      await updateProfile(userCredential.user, {
+      await updateProfile(user, {
         displayName: values.displayName,
+      });
+
+      // Create a new user document in Firestore
+      const userDocRef = doc(firestore, 'users', user.uid);
+      await setDoc(userDocRef, {
+        email: user.email,
+        displayName: values.displayName,
+        photoURL: user.photoURL,
+        isAdmin: false, // Default value for new users
+        subscription: null,
+        tokens: {
+          balance: 0,
+          purchaseHistory: [],
+        },
       });
 
       toast({

@@ -1,14 +1,14 @@
 export interface User {
   id: string;
-  email: string;
-  displayName: string;
-  photoURL?: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL?: string | null;
   isAdmin: boolean;
   subscription?: {
     planId: string;
     status: 'active' | 'canceled' | 'expired';
     endDate: number; // timestamp
-  };
+  } | null;
   tokens: {
     balance: number;
     purchaseHistory: {

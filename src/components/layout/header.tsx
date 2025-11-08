@@ -19,7 +19,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { useState } from 'react';
-import { useFirebase, useUser } from '@/firebase';
+import { useFirebase } from '@/firebase';
+import { useUser } from '@/hooks/use-user';
 import { seedDatabase } from '@/lib/seed';
 import { useToast } from '@/hooks/use-toast';
 import { signOut } from 'firebase/auth';
@@ -32,7 +33,7 @@ const navLinks = [
 ];
 
 export default function Header() {
-  const { user, isUserLoading } = useUser();
+  const { user, isLoading } = useUser();
   const { auth, firestore } = useFirebase();
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { toast } = useToast();
@@ -76,8 +77,7 @@ export default function Header() {
 
 
   const UserMenu = () => {
-    // TODO: Add isAdmin check later
-    const isAdmin = user?.email === 'admin@cinestream.com';
+    const isAdmin = user?.isAdmin;
     return (
         <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -130,9 +130,6 @@ export default function Header() {
       )}
       <Button asChild>
         <Link href="/login">Login</Link>
-      </Button>
-      <Button asChild variant="secondary">
-        <Link href="/signup">Sign Up</Link>
       </Button>
     </div>
   );
@@ -191,7 +188,7 @@ export default function Header() {
         </div>
 
         <div className="flex items-center gap-4">
-          {!isUserLoading && (user ? <UserMenu /> : <AuthButtons />)}
+          {!isLoading && (user ? <UserMenu /> : <AuthButtons />)}
           <MobileNav />
         </div>
       </div>
