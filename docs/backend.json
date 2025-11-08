@@ -25,36 +25,8 @@
         },
         "signUpDate": {
           "type": "string",
-          "description": "Date and time the user signed up.",
+          "description": "Date when the user signed up.",
           "format": "date-time"
-        },
-        "subscriptionIds": {
-          "type": "array",
-          "description": "References to Subscriptions. (Relationship: User 1:N Subscription)",
-          "items": {
-            "type": "string"
-          }
-        },
-        "tokenPurchaseHistoryIds": {
-          "type": "array",
-          "description": "References to TokenPurchaseHistory entries. (Relationship: User 1:N TokenPurchaseHistory)",
-          "items": {
-            "type": "string"
-          }
-        },
-        "serviceTokenHistoryIds": {
-          "type": "array",
-          "description": "References to ServiceTokenHistory entries. (Relationship: User 1:N ServiceTokenHistory)",
-          "items": {
-            "type": "string"
-          }
-        },
-        "changeLog": {
-          "type": "array",
-          "description": "History of changes made to the user's information.",
-          "items": {
-            "type": "string"
-          }
         }
       },
       "required": [
@@ -68,7 +40,7 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Category",
       "type": "object",
-      "description": "Represents a category in the CineStream application.",
+      "description": "Represents a category for videos in the CineStream application.  Supports a three-level hierarchy (e.g., Genre > Subgenre > Specific Category).",
       "properties": {
         "id": {
           "type": "string",
@@ -78,19 +50,19 @@
           "type": "string",
           "description": "Name of the category."
         },
-        "slug": {
+        "parentCategoryId": {
           "type": "string",
-          "description": "Slug for the category (used in URLs)."
+          "description": "Reference to the parent Category. Null if it is a top-level category. (Relationship: Category 1:N Category)"
         },
-        "parentId": {
-          "type": "string",
-          "description": "Reference to parent Category. Null if it's a top-level category. (Relationship: Category 1:N Category)"
+        "level": {
+          "type": "number",
+          "description": "The level of the category in the hierarchy. 1 for top-level, 2 for sub-category, 3 for specific category."
         }
       },
       "required": [
         "id",
         "name",
-        "slug"
+        "level"
       ]
     },
     "Video": {
@@ -109,11 +81,11 @@
         },
         "description": {
           "type": "string",
-          "description": "Description of the video."
+          "description": "Description of the video content."
         },
         "instructor": {
           "type": "string",
-          "description": "Name of the instructor."
+          "description": "Name of the instructor or creator of the video."
         },
         "duration": {
           "type": "number",
@@ -132,6 +104,11 @@
           "type": "string",
           "description": "URL of the video thumbnail image.",
           "format": "uri"
+        },
+        "uploadDate": {
+          "type": "string",
+          "description": "Date when the video was uploaded.",
+          "format": "date-time"
         }
       },
       "required": [
@@ -139,18 +116,19 @@
         "title",
         "categoryId",
         "videoUrl",
-        "thumbnailUrl"
+        "thumbnailUrl",
+        "uploadDate"
       ]
     },
     "VideoLog": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "VideoLog",
       "type": "object",
-      "description": "Represents a user's video viewing history.",
+      "description": "Represents a user's viewing history for a video.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the video log entity."
+          "description": "Unique identifier for the video log entry."
         },
         "userId": {
           "type": "string",
@@ -162,8 +140,12 @@
         },
         "watchDate": {
           "type": "string",
-          "description": "Date and time the video was watched.",
+          "description": "Date and time when the video was watched.",
           "format": "date-time"
+        },
+        "watchDuration": {
+          "type": "number",
+          "description": "The duration of the video that was watched in seconds."
         }
       },
       "required": [
@@ -177,174 +159,229 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Pricing",
       "type": "object",
-      "description": "Represents the pricing information for subscriptions and token packages.",
+      "description": "Represents the pricing options for subscriptions and token packages.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the pricing entity.  This will likely only have one record in the database."
+          "description": "Unique identifier for the pricing option."
         },
-        "subscriptionPrices": {
-          "type": "array",
-          "description": "Array of subscription prices with duration.",
-          "items": {
-            "type": "string"
-          }
+        "type": {
+          "type": "string",
+          "description": "Type of pricing option (e.g., 'subscription', 'token_package')."
         },
-        "tokenPackagePrices": {
-          "type": "array",
-          "description": "Array of token package prices.",
-          "items": {
-            "type": "string"
-          }
+        "name": {
+          "type": "string",
+          "description": "Name of the pricing plan or token package."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the pricing plan/token package."
+        },
+        "price": {
+          "type": "number",
+          "description": "Price of the subscription or token package."
+        },
+        "duration": {
+          "type": "string",
+          "description": "Duration of the subscription period (e.g., '1 week', '1 month').  Applicable only for subscription type."
+        },
+        "tokens": {
+          "type": "number",
+          "description": "Number of tokens included in the package. Applicable only for token_package type."
         }
       },
       "required": [
-        "id"
+        "id",
+        "type",
+        "name",
+        "price"
       ]
     },
     "Subscription": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Subscription",
       "type": "object",
-      "description": "Represents a user's subscription.",
+      "description": "Represents a user's subscription to CineStream.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the subscription entity."
+          "description": "Unique identifier for the subscription."
         },
         "userId": {
           "type": "string",
           "description": "Reference to User. (Relationship: User 1:N Subscription)"
         },
+        "pricingId": {
+          "type": "string",
+          "description": "Reference to Pricing. (Relationship: Pricing 1:N Subscription)"
+        },
         "startDate": {
           "type": "string",
-          "description": "Start date of the subscription.",
+          "description": "Date when the subscription started.",
           "format": "date-time"
         },
         "endDate": {
           "type": "string",
-          "description": "End date of the subscription.",
+          "description": "Date when the subscription ends.",
           "format": "date-time"
         },
-        "pricingId": {
-          "type": "string",
-          "description": "Reference to Pricing. (Relationship: Pricing 1:N Subscription).  Determines pricing."
+        "autoRenew": {
+          "type": "boolean",
+          "description": "Indicates whether the subscription automatically renews."
         }
       },
       "required": [
         "id",
         "userId",
+        "pricingId",
         "startDate",
-        "endDate",
-        "pricingId"
+        "endDate"
       ]
     },
-    "TokenPurchaseHistory": {
+    "TokenPurchase": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "TokenPurchaseHistory",
+      "title": "TokenPurchase",
       "type": "object",
-      "description": "Represents a user's token purchase history.",
+      "description": "Represents a user's purchase of tokens.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the token purchase history entity."
+          "description": "Unique identifier for the token purchase."
         },
         "userId": {
           "type": "string",
-          "description": "Reference to User. (Relationship: User 1:N TokenPurchaseHistory)"
+          "description": "Reference to User. (Relationship: User 1:N TokenPurchase)"
+        },
+        "pricingId": {
+          "type": "string",
+          "description": "Reference to Pricing. (Relationship: Pricing 1:N TokenPurchase)"
         },
         "purchaseDate": {
           "type": "string",
-          "description": "Date and time the tokens were purchased.",
+          "description": "Date when the tokens were purchased.",
           "format": "date-time"
         },
         "tokensPurchased": {
           "type": "number",
           "description": "Number of tokens purchased."
-        },
-        "pricingId": {
-          "type": "string",
-          "description": "Reference to Pricing. (Relationship: Pricing 1:N TokenPurchaseHistory). Determines pricing."
         }
       },
       "required": [
         "id",
         "userId",
+        "pricingId",
         "purchaseDate",
-        "tokensPurchased",
-        "pricingId"
+        "tokensPurchased"
       ]
     },
     "ServiceTokenHistory": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "ServiceTokenHistory",
       "type": "object",
-      "description": "Represents a record of tokens given to a user by an administrator.",
+      "description": "Represents an instance when an admin provides service tokens to a user.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the service token history entity."
+          "description": "Unique identifier for the service token grant."
         },
         "userId": {
           "type": "string",
           "description": "Reference to User. (Relationship: User 1:N ServiceTokenHistory)"
         },
-        "grantDate": {
-          "type": "string",
-          "description": "Date and time the tokens were granted.",
-          "format": "date-time"
-        },
         "tokensGranted": {
           "type": "number",
-          "description": "Number of tokens granted."
+          "description": "Number of tokens granted to the user."
+        },
+        "grantDate": {
+          "type": "string",
+          "description": "Date when the tokens were granted.",
+          "format": "date-time"
         },
         "adminId": {
           "type": "string",
-          "description": "Reference to Admin. (Relationship: Admin 1:N ServiceTokenHistory). Determines who granted tokens"
+          "description": "Reference to the admin user who granted the tokens.  This would reference the User entity."
+        },
+        "reason": {
+          "type": "string",
+          "description": "Reason for granting the tokens."
         }
       },
       "required": [
         "id",
         "userId",
-        "grantDate",
         "tokensGranted",
+        "grantDate",
         "adminId"
       ]
     },
-    "Admin": {
+    "AppSetting": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Admin",
+      "title": "AppSetting",
       "type": "object",
-      "description": "Represents an administrator user.",
+      "description": "Represents application-wide settings that can be configured by the admin.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the administrator user."
+          "description": "Unique identifier for the setting."
         },
-        "name": {
+        "settingKey": {
           "type": "string",
-          "description": "Administrator's full name."
+          "description": "Key for the setting (e.g., 'appName', 'logoUrl', 'themeColor')."
         },
-        "email": {
+        "settingValue": {
           "type": "string",
-          "description": "Administrator's email address.",
-          "format": "email"
-        },
-        "phoneNumber": {
-          "type": "string",
-          "description": "Administrator's phone number."
-        },
-        "signUpDate": {
-          "type": "string",
-          "description": "Date and time the administrator signed up.",
-          "format": "date-time"
+          "description": "Value of the setting."
         }
       },
       "required": [
         "id",
-        "name",
-        "email",
-        "signUpDate"
+        "settingKey",
+        "settingValue"
+      ]
+    },
+    "UserChangeLog": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserChangeLog",
+      "type": "object",
+      "description": "Represents a log of changes made to a user's profile information.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the change log entry."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N UserChangeLog)"
+        },
+        "changeDate": {
+          "type": "string",
+          "description": "Date and time when the change was made.",
+          "format": "date-time"
+        },
+        "changedField": {
+          "type": "string",
+          "description": "The name of the field that was changed (e.g., 'email', 'phoneNumber')."
+        },
+        "oldValue": {
+          "type": "string",
+          "description": "The previous value of the field."
+        },
+        "newValue": {
+          "type": "string",
+          "description": "The new value of the field."
+        },
+        "adminId": {
+          "type": "string",
+          "description": "Reference to the admin user who made the change (if applicable). This would reference the User entity."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "changeDate",
+        "changedField",
+        "oldValue",
+        "newValue"
       ]
     }
   },
@@ -363,11 +400,11 @@
           "schema": {
             "$ref": "#/backend/entities/User"
           },
-          "description": "Stores user profiles. The userId parameter is the Firebase Auth UID.",
+          "description": "Stores user profile information. Includes a 'userId' parameter.",
           "params": [
             {
               "name": "userId",
-              "description": "The unique identifier for the user, matching the Firebase Auth UID."
+              "description": "The unique identifier for the user."
             }
           ]
         }
@@ -379,7 +416,7 @@
           "schema": {
             "$ref": "#/backend/entities/Category"
           },
-          "description": "Stores category information, including hierarchical relationships. Includes parentId to manage the category tree.",
+          "description": "Stores category information. Includes a 'categoryId' parameter.",
           "params": [
             {
               "name": "categoryId",
@@ -389,18 +426,14 @@
         }
       },
       {
-        "path": "/categories/{categoryId}/videos/{videoId}",
+        "path": "/videos/{videoId}",
         "definition": {
           "entityName": "Video",
           "schema": {
             "$ref": "#/backend/entities/Video"
           },
-          "description": "Stores video metadata, organized under categories.  This path allows for efficient retrieval of videos by category.",
+          "description": "Stores video metadata. Includes a 'videoId' parameter.",
           "params": [
-            {
-              "name": "categoryId",
-              "description": "The unique identifier for the category."
-            },
             {
               "name": "videoId",
               "description": "The unique identifier for the video."
@@ -415,7 +448,7 @@
           "schema": {
             "$ref": "#/backend/entities/VideoLog"
           },
-          "description": "Stores user's video viewing history. Includes userId and videoId for tracking.  Denormalized access control fields can be added here if necessary.",
+          "description": "Stores user's video viewing history. Includes 'userId' and 'videoLogId' parameters.",
           "params": [
             {
               "name": "userId",
@@ -435,7 +468,7 @@
           "schema": {
             "$ref": "#/backend/entities/Pricing"
           },
-          "description": "Stores pricing information for subscriptions and token packages. This is a singleton document.",
+          "description": "Stores pricing information for subscriptions and token packages.  This is a singleton document.",
           "params": []
         }
       },
@@ -446,7 +479,7 @@
           "schema": {
             "$ref": "#/backend/entities/Subscription"
           },
-          "description": "Stores user subscription details.",
+          "description": "Stores user subscription information. Includes 'userId' and 'subscriptionId' parameters.",
           "params": [
             {
               "name": "userId",
@@ -460,21 +493,21 @@
         }
       },
       {
-        "path": "/users/{userId}/tokenPurchaseHistory/{tokenPurchaseHistoryId}",
+        "path": "/users/{userId}/tokenPurchases/{tokenPurchaseId}",
         "definition": {
-          "entityName": "TokenPurchaseHistory",
+          "entityName": "TokenPurchase",
           "schema": {
-            "$ref": "#/backend/entities/TokenPurchaseHistory"
+            "$ref": "#/backend/entities/TokenPurchase"
           },
-          "description": "Stores user's token purchase history.",
+          "description": "Stores user's token purchase history. Includes 'userId' and 'tokenPurchaseId' parameters.",
           "params": [
             {
               "name": "userId",
               "description": "The unique identifier for the user."
             },
             {
-              "name": "tokenPurchaseHistoryId",
-              "description": "The unique identifier for the token purchase history entry."
+              "name": "tokenPurchaseId",
+              "description": "The unique identifier for the token purchase."
             }
           ]
         }
@@ -486,7 +519,7 @@
           "schema": {
             "$ref": "#/backend/entities/ServiceTokenHistory"
           },
-          "description": "Stores history of tokens granted to users by administrators.",
+          "description": "Stores history of service tokens granted to users by admins. Includes 'userId' and 'serviceTokenHistoryId' parameters.",
           "params": [
             {
               "name": "userId",
@@ -500,22 +533,42 @@
         }
       },
       {
-        "path": "/roles_admin/{userId}",
+        "path": "/appSettings/{appSettingId}",
         "definition": {
-          "entityName": "Admin",
+          "entityName": "AppSetting",
           "schema": {
-            "$ref": "#/backend/entities/Admin"
+            "$ref": "#/backend/entities/AppSetting"
           },
-          "description": "Determines admin privileges. If a document exists for a userId in this collection, that user is an admin. Existence over content.",
+          "description": "Stores application-wide settings. Includes an 'appSettingId' parameter.",
+          "params": [
+            {
+              "name": "appSettingId",
+              "description": "The unique identifier for the app setting."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/changeLogs/{changeLogId}",
+        "definition": {
+          "entityName": "UserChangeLog",
+          "schema": {
+            "$ref": "#/backend/entities/UserChangeLog"
+          },
+          "description": "Stores a log of changes made to a user's profile information. Includes 'userId' and 'changeLogId' parameters.",
           "params": [
             {
               "name": "userId",
-              "description": "The unique identifier for the user who is an admin."
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "changeLogId",
+              "description": "The unique identifier for the change log entry."
             }
           ]
         }
       }
     ],
-    "reasoning": "The Firestore data structure is designed to support the CineStream application's features, focusing on authorization independence, clarity, and scalability. User-owned data and collaborative data patterns are applied consistently. Denormalization is used to avoid `get()` calls in security rules.\n\n*   **Authorization Independence**: The structure denormalizes authorization context where necessary. For instance, if access to `videoLogs` needs to be restricted based on user roles or video ownership, the relevant user and video details (like category) are copied into `videoLogs` documents. This eliminates the need for security rules to fetch parent document data, enabling atomic operations and improving security rule performance.\n\n*   **Structural Segregation**:  Data with different access requirements are stored in separate collections. For example, user-specific data resides under `/users/{userId}`, while global data like `/categories` is stored at the root level.\n\n*   **Access Modeling**: Path-based ownership is used for user-owned data (e.g., `/users/{userId}/subscriptions/{subscriptionId}`).  The membership map pattern isn't explicitly used here, as admin roles will be determined by document existence.  The nested data (e.g. subscriptions, token purchases) continue the path structure.\n\n*   **QAPs (Queryability And Performance)**: The data structure facilitates secure `list` operations.  For instance, listing videos within a specific category is directly supported by the `/categories/{categoryId}/videos/{videoId}` structure. Since authorization information is denormalized when needed, rules can efficiently validate read access without complex lookups.\n\n*   **Admin Role**: The existence of a document in `/roles_admin/{userId}` determines admin status, which aligns with the DBAC principle.\n\n*   **Invariants**: Timestamps and other critical data can be validated using security rules, ensuring data integrity. For example, the `startDate` and `endDate` in `Subscription` can be checked against the current time in rules."
+    "reasoning": "The Firestore data structure is designed to support the CineStream application's features, focusing on scalability, security, and ease of management. It prioritizes authorization independence by denormalizing data where necessary and uses structural segregation to maintain a homogeneous security posture within each collection.  The structure also supports the QAPs (Rules are not Filters) principle by avoiding complex queries in rules and standardizing access models.\n\n*Authorization Independence:*\nAuthorization Independence is achieved through denormalization. For example, if access to `videoLogs` needed to be restricted based on a user's subscription status, that subscription information would be denormalized into the `videoLogs` document.  However, given that the provided requirements indicate open read/write access for authenticated users in the early development phase, the need for extensive denormalization is currently minimized.  As security requirements evolve, denormalization should be revisited.\n\n*QAPs (Rules are not Filters):*\nThe structure uses segregation to support secure listing operations. Each collection is designed with a specific access pattern in mind, avoiding the need to filter based on document content in security rules. For example, user-specific data (subscriptions, token purchases, video logs) are stored in subcollections under the `/users/{userId}` path, allowing rules to easily enforce ownership.\n\nMembership Maps are not explicitly needed at this stage due to the open access policy during development. However, if collaborative features are added later (e.g., shared playlists), membership maps in dedicated collections would be the preferred approach.\n\n*Global Roles (DBAC):*  Since all authenticated users have read/write access, a dedicated `/roles_admin/{uid}` is not required at this time.  If, in the future, admin-specific permissions need to be locked down, the existence of a document in this collection can be used to grant elevated privileges.\n\n*Invariants:*\nThe structure supports invariants like ownership by using hierarchical paths for user-owned data (e.g., `/users/{userId}/subscriptions/{subscriptionId}`). Timestamps can be enforced using serverTimestamp() in Firestore rules. Denormalized data (if added later) should be updated using transactions or batched writes to maintain consistency.\n\nExplicit state modeling (using a `status` field) isn't extensively used in the current data model but can be added to entities like `Subscription` if the application logic requires more explicit state management (e.g., `ACTIVE`, `EXPIRED`, `CANCELED`)."
   }
 }

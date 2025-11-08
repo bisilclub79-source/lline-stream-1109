@@ -1,32 +1,130 @@
 /**
- * @fileOverview Firestore Security Rules for CineStream application.
- *
- * Core Philosophy:
- * This ruleset prioritizes a secure, user-centric data access model. It enforces strict ownership for user-specific data while allowing public read access for certain collections. The existence of a document in `/roles_admin/{userId}` determines admin status.
- *
- * Data Structure:
- * - User-specific data is nested under `/users/{userId}`, including subscriptions, token purchase history, and service token history.
- * - Categories are stored in the top-level `/categories/{categoryId}` collection.
- * - Videos are stored under the category path `/categories/{categoryId}/videos/{videoId}`.
- * - Video logs are stored under the user path `/users/{userId}/videoLogs/{videoLogId}`.
- * - Pricing information is stored in a singleton document at `/settings/pricing`.
- * - Admin status is determined by the existence of a document in `/roles_admin/{userId}`.
- *
- * Key Security Decisions:
- * - Listing of all users is explicitly denied.
- * - Public read access is granted to the `/categories` collection to allow unauthenticated users to browse categories.
- * - Admin privileges are determined by document existence in `/roles_admin/{userId}`.
- * - Data validation is limited to fields critical for authorization and relational integrity.
- *
- * Denormalization for Authorization:
- *  - No denormalization is required in this version since authorization is granted openly for authenticated users.
+ * @file Firestore Security Rules for CineStream Application (Prototyping Mode)
+ * @core_philosophy This ruleset provides a permissive environment for rapid prototyping, granting all authenticated users full read and write access to all data. This is intended for development purposes only and MUST be replaced with more restrictive rules before production deployment.
+ * @data_structure The Firestore database is structured around several top-level collections: `users`, `categories`, `videos`, and `appSettings`. User-specific data (e.g., `videoLogs`, `subscriptions`, `tokenPurchases`, `serviceTokenHistory`, `changeLogs`) is nested under the `/users/{userId}` path.
+ * @key_security_decisions
+ *   - All authenticated users can read and write any data.
+ *   - Schema validation is minimal. The focus is on authorization, not data integrity.
+ *   - User listing is generally allowed for prototyping.
+ * @denormalization Not used in this prototype due to the permissive nature of the rules.
+ * @structural_segregation Not used in this prototype due to the permissive nature of the rules.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      // WARNING: Insecure rules for development. Allows all reads and writes.
-      allow read, write: if true;
+
+    /**
+     * @description Rules for the /users/{userId} collection. Allows any authenticated user to read and write user data.
+     * @path /users/{userId}
+     * @allow (create, update, delete, get, list) - Any authenticated user can create, update, delete, get, and list user documents.
+     * @deny (none) - No requests are explicitly denied.
+     * @principle Allows any authenticated user to read and write user data during prototyping.
+     */
+    match /users/{userId} {
+      allow read, write: if isSignedIn();
+    }
+
+    /**
+     * @description Rules for the /categories/{categoryId} collection. Allows any authenticated user to read and write category data.
+     * @path /categories/{categoryId}
+     * @allow (create, update, delete, get, list) - Any authenticated user can create, update, delete, get, and list category documents.
+     * @deny (none) - No requests are explicitly denied.
+     * @principle Allows any authenticated user to read and write category data during prototyping.
+     */
+    match /categories/{categoryId} {
+      allow read, write: if isSignedIn();
+    }
+
+    /**
+     * @description Rules for the /videos/{videoId} collection. Allows any authenticated user to read and write video data.
+     * @path /videos/{videoId}
+     * @allow (create, update, delete, get, list) - Any authenticated user can create, update, delete, get, and list video documents.
+     * @deny (none) - No requests are explicitly denied.
+     * @principle Allows any authenticated user to read and write video data during prototyping.
+     */
+    match /videos/{videoId} {
+      allow read, write: if isSignedIn();
+    }
+
+    /**
+     * @description Rules for the /users/{userId}/videoLogs/{videoLogId} collection. Allows any authenticated user to read and write video log data.
+     * @path /users/{userId}/videoLogs/{videoLogId}
+     * @allow (create, update, delete, get, list) - Any authenticated user can create, update, delete, get, and list video log documents.
+     * @deny (none) - No requests are explicitly denied.
+     * @principle Allows any authenticated user to read and write video log data during prototyping.
+     */
+    match /users/{userId}/videoLogs/{videoLogId} {
+      allow read, write: if isSignedIn();
+    }
+
+    /**
+     * @description Rules for the /settings/pricing document. Allows any authenticated user to read and write pricing data.
+     * @path /settings/pricing
+     * @allow (create, update, delete, get, list) - Any authenticated user can create, update, delete, get, and list the pricing document.
+     * @deny (none) - No requests are explicitly denied.
+     * @principle Allows any authenticated user to read and write pricing data during prototyping.
+     */
+    match /settings/pricing {
+      allow read, write: if isSignedIn();
+    }
+
+    /**
+     * @description Rules for the /users/{userId}/subscriptions/{subscriptionId} collection. Allows any authenticated user to read and write subscription data.
+     * @path /users/{userId}/subscriptions/{subscriptionId}
+     * @allow (create, update, delete, get, list) - Any authenticated user can create, update, delete, get, and list subscription documents.
+     * @deny (none) - No requests are explicitly denied.
+     * @principle Allows any authenticated user to read and write subscription data during prototyping.
+     */
+    match /users/{userId}/subscriptions/{subscriptionId} {
+      allow read, write: if isSignedIn();
+    }
+
+    /**
+     * @description Rules for the /users/{userId}/tokenPurchases/{tokenPurchaseId} collection. Allows any authenticated user to read and write token purchase data.
+     * @path /users/{userId}/tokenPurchases/{tokenPurchaseId}
+     * @allow (create, update, delete, get, list) - Any authenticated user can create, update, delete, get, and list token purchase documents.
+     * @deny (none) - No requests are explicitly denied.
+     * @principle Allows any authenticated user to read and write token purchase data during prototyping.
+     */
+    match /users/{userId}/tokenPurchases/{tokenPurchaseId} {
+      allow read, write: if isSignedIn();
+    }
+
+    /**
+     * @description Rules for the /users/{userId}/serviceTokenHistory/{serviceTokenHistoryId} collection. Allows any authenticated user to read and write service token history data.
+     * @path /users/{userId}/serviceTokenHistory/{serviceTokenHistoryId}
+     * @allow (create, update, delete, get, list) - Any authenticated user can create, update, delete, get, and list service token history documents.
+     * @deny (none) - No requests are explicitly denied.
+     * @principle Allows any authenticated user to read and write service token history data during prototyping.
+     */
+    match /users/{userId}/serviceTokenHistory/{serviceTokenHistoryId} {
+      allow read, write: if isSignedIn();
+    }
+
+    /**
+     * @description Rules for the /appSettings/{appSettingId} collection. Allows any authenticated user to read and write app setting data.
+     * @path /appSettings/{appSettingId}
+     * @allow (create, update, delete, get, list) - Any authenticated user can create, update, delete, get, and list app setting documents.
+     * @deny (none) - No requests are explicitly denied.
+     * @principle Allows any authenticated user to read and write app setting data during prototyping.
+     */
+    match /appSettings/{appSettingId} {
+      allow read, write: if isSignedIn();
+    }
+
+    /**
+     * @description Rules for the /users/{userId}/changeLogs/{changeLogId} collection. Allows any authenticated user to read and write user change log data.
+     * @path /users/{userId}/changeLogs/{changeLogId}
+     * @allow (create, update, delete, get, list) - Any authenticated user can create, update, delete, get, and list user change log documents.
+     * @deny (none) - No requests are explicitly denied.
+     * @principle Allows any authenticated user to read and write user change log data during prototyping.
+     */
+    match /users/{userId}/changeLogs/{changeLogId} {
+      allow read, write: if isSignedIn();
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
     }
   }
 }
