@@ -5,3 +5,8 @@ runConfig:
   # Increase this value if you'd like to automatically spin up
   # more instances in response to increased traffic.
   maxInstances: 1
+env:
+  - variable: PORTONE_API_SECRET
+    value: "YOUR_PORTONE_API_SECRET" # 포트원 관리자 페이지 > API 설정에서 발급받은 API Secret Key
+  - variable: FIREBASE_SERVICE_ACCOUNT_KEY
+    value: "YOUR_FIREBASE_SERVICE_ACCOUNT_KEY" # Firebase 프로젝트 설정 > 서비스 계정에서 생성한 비공개 키
