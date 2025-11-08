@@ -347,7 +347,7 @@ export default function PricingPage() {
                         <Card key={pkg.id}>
                             <CardHeader>
                                 <CardTitle className="text-lg">{pkg.name}</CardTitle>
-                                <CardDescription>{pkg.tokens.toLocaleString()} tokens</CardDescription>
+                                {pkg.tokens && <CardDescription>{pkg.tokens.toLocaleString()} tokens</CardDescription>}
                             </CardHeader>
                             <CardContent className="flex items-center justify-between">
                                 <p className="text-xl font-bold">{pkg.price.toLocaleString()}원</p>
@@ -424,5 +424,3 @@ export default function PricingPage() {
     </div>
   );
 }
-
-    
