@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { processPayment } from '@/app/actions/payment';
 
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection } from 'firebase/firestore';
 import { useFirestore, useCollection } from '@/firebase';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,6 +15,7 @@ import { Switch } from '@/components/ui/switch';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Plus, Minus, CreditCard, ShoppingCart } from 'lucide-react';
 import type { Category } from '@/lib/types';
+import { useMemoFirebase } from '@/firebase/provider';
 
 // Define types for pricing data
 interface SubscriptionPrice {
@@ -47,6 +48,7 @@ interface SelectedTokenPackage {
   packageName: string;
   quantity: number;
   price: number;
+  tokens?: number; // Add tokens to the interface
 }
 
 export default function PricingPage() {
@@ -58,12 +60,12 @@ export default function PricingPage() {
   const [pricingData, setPricingData] = useState<PricingData | null>(null);
   const [isPricingLoading, setIsPricingLoading] = useState(true);
 
-  const { data: categories, isLoading: areCategoriesLoading } = useCollection<Category>(
-    useMemo(() => {
-      if (!firestore) return null;
-      return doc(firestore, 'categories');
-    }, [firestore])
-  );
+  const categoriesCollectionRef = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return collection(firestore, 'categories');
+  }, [firestore]);
+
+  const { data: categories, isLoading: areCategoriesLoading } = useCollection<Category>(categoriesCollectionRef);
   
   const [selectedSubs, setSelectedSubs] = useState<Record<string, SelectedSubscription>>({});
   const [selectedTokens, setSelectedTokens] = useState<Record<string, SelectedTokenPackage>>({});
@@ -96,10 +98,17 @@ export default function PricingPage() {
     const roots: (Category & { children: Category[] })[] = [];
 
     categories.forEach(cat => {
-      if (cat.parentId) {
-        categoryMap.get(cat.parentId)?.children.push(categoryMap.get(cat.id)!);
-      } else {
-        roots.push(categoryMap.get(cat.id)!);
+      if (cat.parentId && categoryMap.has(cat.parentId)) {
+        const parent = categoryMap.get(cat.parentId);
+        const current = categoryMap.get(cat.id);
+        if(parent && current) {
+          parent.children.push(current);
+        }
+      } else if (!cat.parentId) {
+        const current = categoryMap.get(cat.id);
+        if (current) {
+          roots.push(current);
+        }
       }
     });
     return roots;
@@ -112,6 +121,11 @@ export default function PricingPage() {
         delete newState[categoryId];
         return newState;
       });
+    } else {
+        // Default to the first plan if user just enabled it
+        if(pricingData?.subscriptionPrices?.[0]){
+            handleSubPlanSelect(categoryId, categoryName, pricingData.subscriptionPrices[0]);
+        }
     }
   };
 
@@ -130,7 +144,7 @@ export default function PricingPage() {
 
   const handleTokenQuantityChange = (pkg: TokenPackage, change: number) => {
     setSelectedTokens(prev => {
-      const current = prev[pkg.id] || { packageId: pkg.id, packageName: pkg.name, quantity: 0, price: pkg.price };
+      const current = prev[pkg.id] || { packageId: pkg.id, packageName: pkg.name, quantity: 0, price: pkg.price, tokens: pkg.tokens };
       const newQuantity = Math.max(0, current.quantity + change);
       const newState = { ...prev };
       if (newQuantity === 0) {
@@ -149,20 +163,23 @@ export default function PricingPage() {
   }, [selectedSubs, selectedTokens]);
   
   const orderName = useMemo(() => {
-    const subCount = Object.keys(selectedSubs).length;
-    const tokenCount = Object.keys(selectedTokens).length;
+    const subItems = Object.values(selectedSubs);
+    const tokenItems = Object.values(selectedTokens);
+    const totalItems = subItems.length + tokenItems.length;
+
+    if (totalItems === 0) return '주문 내역 없음';
+
     let name = '';
-    if (subCount > 0) {
-        name = `${Object.values(selectedSubs)[0].categoryName}`;
-    } else if (tokenCount > 0) {
-        name = `${Object.values(selectedTokens)[0].packageName}`;
+    if (subItems.length > 0) {
+        name = `구독: ${subItems[0].categoryName}`;
+    } else if (tokenItems.length > 0) {
+        name = `토큰: ${tokenItems[0].packageName}`;
     }
 
-    const totalItems = subCount + tokenCount;
     if (totalItems > 1) {
         name += ` 외 ${totalItems - 1}건`;
     }
-    return name || '주문 내역 없음';
+    return name;
   }, [selectedSubs, selectedTokens]);
 
   const handlePayment = async () => {
@@ -200,9 +217,9 @@ export default function PricingPage() {
             totalAmount,
             customer: {
                 customerId: user.uid,
-                fullName: user.displayName,
-                email: user.email,
-                phoneNumber: user.phoneNumber,
+                fullName: user.displayName || '고객',
+                email: user.email || undefined,
+                phoneNumber: user.phoneNumber || undefined,
             },
             customData,
             isTest: true,
@@ -216,8 +233,10 @@ export default function PricingPage() {
             } else {
                 toast({ variant: 'destructive', title: '결제 처리 실패', description: result.message });
             }
+        } else if (response?.code) {
+             toast({ variant: 'destructive', title: '결제 취소', description: response.message || '사용자가 결제를 취소했습니다.' });
         } else {
-            toast({ variant: 'destructive', title: '결제 실패', description: response?.message || '결제 중 오류가 발생했습니다.' });
+             toast({ variant: 'destructive', title: '결제 실패', description: '결제 중 오류가 발생했습니다.' });
         }
     } catch (error) {
         console.error('결제 요청 중 예외 발생:', error);
@@ -232,7 +251,10 @@ export default function PricingPage() {
   if (isLoading) {
     return (
         <div className="container mx-auto max-w-7xl py-12 px-4">
-            <Skeleton className="h-10 w-64 mb-10" />
+            <header className="mb-10 text-center">
+              <Skeleton className="h-10 w-64 mx-auto" />
+              <Skeleton className="h-6 w-96 mx-auto mt-4" />
+            </header>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                 <div className="lg:col-span-2 space-y-6">
                     <Skeleton className="h-48 w-full" />
@@ -271,8 +293,9 @@ export default function PricingPage() {
                                 <AccordionTrigger className="text-lg font-semibold">{cat.name}</AccordionTrigger>
                                 <AccordionContent>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                                        {cat.children.map(subCat => (
-                                            <Card key={subCat.id} className={selectedSubs[subCat.id] ? 'border-primary' : ''}>
+                                        {cat.children && cat.children.length > 0 ? (
+                                            cat.children.map(subCat => (
+                                            <Card key={subCat.id} className={selectedSubs[subCat.id] ? 'border-primary ring-2 ring-primary' : ''}>
                                                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                                                     <div>
                                                         <CardTitle className="text-base">{subCat.name}</CardTitle>
@@ -281,11 +304,12 @@ export default function PricingPage() {
                                                     <Switch 
                                                         checked={!!selectedSubs[subCat.id]}
                                                         onCheckedChange={(checked) => handleSubSwitch(subCat.id, subCat.name, checked)}
+                                                        id={`switch-${subCat.id}`}
                                                     />
                                                 </CardHeader>
                                                 {selectedSubs[subCat.id] && (
                                                     <CardContent>
-                                                        <div className="flex gap-2 mt-2">
+                                                        <div className="flex flex-wrap gap-2 mt-2">
                                                             {pricingData?.subscriptionPrices.map(plan => (
                                                                 <Button 
                                                                     key={plan.id}
@@ -293,14 +317,17 @@ export default function PricingPage() {
                                                                     size="sm"
                                                                     onClick={() => handleSubPlanSelect(subCat.id, subCat.name, plan)}
                                                                 >
-                                                                    {plan.duration} ({plan.price.toLocaleString()}원)
+                                                                    {plan.name} ({plan.price.toLocaleString()}원)
                                                                 </Button>
                                                             ))}
                                                         </div>
                                                     </CardContent>
                                                 )}
                                             </Card>
-                                        ))}
+                                            ))
+                                        ) : (
+                                            <p className="text-muted-foreground p-4 text-sm col-span-full">이 카테고리에는 하위 상품이 없습니다.</p>
+                                        )}
                                     </div>
                                 </AccordionContent>
                             </AccordionItem>
@@ -397,3 +424,5 @@ export default function PricingPage() {
     </div>
   );
 }
+
+    
