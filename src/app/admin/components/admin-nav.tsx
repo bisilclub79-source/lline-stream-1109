@@ -3,22 +3,37 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { LayoutDashboard, Film, ListTree, Users, DollarSign, BarChart } from "lucide-react"
+import { 
+    LayoutDashboard, 
+    Film, 
+    ListTree, 
+    Users, 
+    DollarSign, 
+    BarChart,
+    Tv,
+    Cog,
+    FileClock,
+    UserPlus,
+    Receipt
+} from "lucide-react"
 
 const navItems = [
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/admin/videos", label: "Videos", icon: Film },
-    { href: "/admin/categories", label: "Categories", icon: ListTree },
-    { href: "/admin/users", label: "Users", icon: Users },
-    { href: "/admin/pricing", label: "Pricing", icon: DollarSign },
-    { href: "/admin/analytics", label: "Analytics", icon: BarChart },
+    { href: "/admin/videos", label: "Video Management", icon: Film },
+    { href: "/admin/categories", label: "Category Management", icon: ListTree },
+    { href: "/admin/user-signup-info", label: "User Signup Info", icon: UserPlus },
+    { href: "/admin/user-video-pricing", label: "Payment History", icon: Receipt },
+    { href: "/admin/user-subscription-info", label: "Subscription Info", icon: Users },
+    { href: "/admin/pricing", label: "Pricing Policy", icon: DollarSign },
+    { href: "/admin/backend-total", label: "Total Watch History", icon: FileClock },
+    { href: "/admin/settings", label: "App Settings", icon: Cog },
 ]
 
 export default function AdminNav() {
     const pathname = usePathname()
 
     return (
-        <nav className="flex flex-col gap-2 p-4">
+        <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
             {navItems.map((item) => {
                 const isActive = pathname === item.href
                 return (
