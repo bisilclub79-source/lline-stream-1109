@@ -30,7 +30,6 @@ export interface Category {
 export interface Video {
   id: string;
   title: string;
-  name?: string; // for new videos
   description: string;
   duration: number; // in seconds
   thumbnailId: string;
@@ -38,6 +37,9 @@ export interface Video {
   accessLevel: 'free' | 'subscription' | 'token';
   tokenCost?: number;
   tags: string[];
+  instructor?: string; // Added instructor field
+  videoUrl?: string; // Added videoUrl
+  thumbnailUrl?: string; // Added thumbnailUrl
 }
 
 export interface PricingPlan {

@@ -13,13 +13,17 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Logo from '@/components/logo';
-import { ChevronDown, LayoutDashboard, LogOut, User, Menu } from 'lucide-react';
+import { ChevronDown, LayoutDashboard, LogOut, User, Menu, Database } from 'lucide-react';
 import {
   Sheet,
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { useState } from 'react';
+import { useFirebase } from '@/firebase';
+import { seedDatabase } from '@/lib/seed';
+import { useToast } from '@/hooks/use-toast';
+
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -30,6 +34,29 @@ const navLinks = [
 export default function Header() {
   const { user, loading, logout } = useAuth();
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { firestore } = useFirebase();
+  const { toast } = useToast();
+
+  const handleSeed = async () => {
+    if (!firestore) return;
+    toast({
+        title: 'Seeding Database...',
+        description: 'Please wait while we populate the database with sample data.',
+    });
+    const result = await seedDatabase(firestore);
+    if (result.success) {
+        toast({
+            title: 'Success!',
+            description: 'The database has been seeded with sample data.',
+        });
+    } else {
+        toast({
+            variant: 'destructive',
+            title: 'Error Seeding Database',
+            description: 'There was an error. Check the console for details.',
+        });
+    }
+  }
 
   const UserMenu = () => (
     <DropdownMenu>
@@ -74,6 +101,12 @@ export default function Header() {
 
   const AuthButtons = () => (
     <div className="flex items-center gap-2">
+       {process.env.NODE_ENV === 'development' && (
+         <Button variant="outline" size="sm" onClick={handleSeed}>
+            <Database className="mr-2 h-4 w-4" />
+            Seed Database
+        </Button>
+      )}
       <Button variant="outline" asChild>
         <Link href="/login">Login</Link>
       </Button>
