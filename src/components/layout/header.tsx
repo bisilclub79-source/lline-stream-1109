@@ -67,6 +67,7 @@ export default function Header() {
   }
 
   const handleLogout = async () => {
+    if (!auth) return;
     try {
       await signOut(auth);
       toast({ title: 'Logged out successfully' });
@@ -77,6 +78,7 @@ export default function Header() {
 
 
   const UserMenu = () => {
+    if (!user) return null;
     const isAdmin = user?.isAdmin;
     return (
         <DropdownMenu>
@@ -86,10 +88,10 @@ export default function Header() {
             className="flex items-center gap-2 rounded-full h-10 px-2"
             >
             <Avatar className="h-8 w-8">
-                <AvatarImage src={user?.photoURL || ''} alt={user?.displayName || 'User'} />
-                <AvatarFallback>{user?.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                <AvatarImage src={user.photoURL || ''} alt={user.displayName || 'User'} />
+                <AvatarFallback>{user.displayName?.charAt(0) || 'U'}</AvatarFallback>
             </Avatar>
-            <span className="hidden md:inline">{user?.displayName}</span>
+            <span className="hidden md:inline">{user.displayName}</span>
             <ChevronDown className="h-4 w-4 hidden md:inline" />
             </Button>
         </DropdownMenuTrigger>
@@ -188,7 +190,9 @@ export default function Header() {
         </div>
 
         <div className="flex items-center gap-4">
-          {!isLoading && (user ? <UserMenu /> : <AuthButtons />)}
+          {isLoading ? (
+            <div className="h-10 w-24 animate-pulse rounded-md bg-muted" />
+          ) : user ? <UserMenu /> : <AuthButtons />}
           <MobileNav />
         </div>
       </div>
