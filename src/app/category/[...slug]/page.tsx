@@ -4,6 +4,7 @@ import VideoCard from '@/components/video-card';
 import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
 import { Film } from 'lucide-react';
+import { categories as allCategories } from '@/lib/data';
 
 export default async function CategoryPage({ params }: { params: { slug: string[] } }) {
   const slug = params.slug || [];
@@ -14,7 +15,7 @@ export default async function CategoryPage({ params }: { params: { slug: string[
   let content;
 
   if (isRoot) {
-    const categories = await getCategories();
+    const categories = await getCategories({level: 1});
     content = (
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {categories.map((category) => (
@@ -36,18 +37,20 @@ export default async function CategoryPage({ params }: { params: { slug: string[
     }
 
     // Build breadcrumbs
-    let parentId = currentCategory.parentId;
-    let path = [currentCategory];
-    while(parentId) {
-        const parent = await getCategoryBySlug(categories.find(c => c.id === parentId)?.slug || '');
-        if (parent) {
-            path.unshift(parent);
-            parentId = parent.parentId;
-        } else {
-            parentId = null;
-        }
+    let path = [];
+    let current: typeof currentCategory | undefined = currentCategory;
+    while(current) {
+        path.unshift(current);
+        const parent = allCategories.find(c => c.id === current.parentId);
+        current = parent;
     }
-    breadcrumbLinks.push(...path.map(p => ({ name: p.name, href: `/category/${p.slug}` })));
+
+    const fullPathSlugs = path.map(p => p.slug);
+    
+    breadcrumbLinks.push(...path.map((p, i) => ({ 
+        name: p.name, 
+        href: `/category/${fullPathSlugs.slice(0, i + 1).join('/')}` 
+    })));
 
 
     pageTitle = currentCategory.name;
@@ -58,7 +61,7 @@ export default async function CategoryPage({ params }: { params: { slug: string[
       content = (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {subCategories.map((category) => (
-            <Link key={category.id} href={`/category/${currentCategory.slug}/${category.slug}`}>
+            <Link key={category.id} href={`/category/${fullPathSlugs.join('/')}/${category.slug}`}>
               <Card className="group relative overflow-hidden transition-transform duration-300 hover:scale-105 hover:shadow-primary/20 hover:shadow-lg">
                 <CardContent className="flex flex-col items-center justify-center p-6 aspect-video">
                   <Film className="h-10 w-10 text-primary" />
@@ -91,8 +94,8 @@ export default async function CategoryPage({ params }: { params: { slug: string[
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             {breadcrumbLinks.map((link, index) => (
-                <>
-                 <BreadcrumbItem key={index}>
+                <React.Fragment key={index}>
+                 <BreadcrumbItem>
                     {index === breadcrumbLinks.length - 1 ? (
                         <BreadcrumbPage>{link.name}</BreadcrumbPage>
                     ) : (
@@ -102,7 +105,7 @@ export default async function CategoryPage({ params }: { params: { slug: string[
                     )}
                 </BreadcrumbItem>
                 {index < breadcrumbLinks.length -1 && <BreadcrumbSeparator />}
-                </>
+                </React.Fragment>
             ))}
         </BreadcrumbList>
       </Breadcrumb>
