@@ -3,68 +3,110 @@
     {
       "id": "hero-1",
       "description": "A futuristic city skyline at night, representing cinematic worlds.",
-      "imageUrl": "https://images.unsplash.com/photo-1505811210036-052144988918?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxjaXR5JTIwbmlnaHR8ZW58MHx8fHwxNzYyNDA3MzcyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1588312744377-2adfb7b8578a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxjaXR5JTIwbmlnaHR8ZW58MHx8fHwxNzYyNTIxMzk2fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "city night"
     },
     {
       "id": "thumb-action-1",
       "description": "Explosion in a city street.",
-      "imageUrl": "https://images.unsplash.com/photo-1606004898841-706417f4e7e3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxleHBsb3Npb24lMjBhY3Rpb258ZW58MHx8fHwxNzYyNDQ5NjczfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1549744587-3b663f325b85?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxleHBsb3Npb24lMjBhY3Rpb258ZW58MHx8fHwxNzYyNjEwNDM0fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "explosion action"
     },
     {
       "id": "thumb-action-2",
       "description": "High-speed car chase.",
-      "imageUrl": "https://images.unsplash.com/photo-1760456014926-7da3809ed9ea?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjYXIlMjBjaGFzZXxlbnwwfHx8fDE3NjI0NDY4NjF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1601227177937-5aca4069177b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxjYXIlMjBjaGFzZXxlbnwwfHx8fDE3NjI1NDA5MDF8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "car chase"
     },
     {
       "id": "thumb-comedy-1",
       "description": "Person slipping on a banana peel.",
-      "imageUrl": "https://images.unsplash.com/photo-1605706275526-ded7b77e5e44?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmdW5ueSUyMGZhaWx8ZW58MHx8fHwxNzYyNDQ5NjczfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1605706275526-ded7b77e5e44?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmdW5ueSUyMGZhaWx8ZW58MHx8fHwxNzYyNjEwNDM0fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "funny fail"
     },
     {
       "id": "thumb-comedy-2",
       "description": "A group of friends laughing.",
-      "imageUrl": "https://images.unsplash.com/photo-1632163367953-ece69983d011?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8ZnJpZW5kcyUyMGxhdWdoaW5nfGVufDB8fHx8MTc2MjQzMDk4NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1583606784123-7c244f00d29c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxmcmllbmRzJTIwbGF1Z2hpbmd8ZW58MHx8fHwxNzYyNTU2Nzk3fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "friends laughing"
     },
     {
       "id": "thumb-drama-1",
       "description": "A person looking out a rainy window.",
-      "imageUrl": "https://images.unsplash.com/photo-1618133806370-53c1d2934425?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxyYWluJTIwd2luZG93fGVufDB8fHx8MTc2MjM2MTkyNHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1567688993206-43c34131b21f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxyYWluJTIwd2luZG93fGVufDB8fHx8MTc2MjYxMDQzNXww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "rain window"
     },
     {
       "id": "thumb-drama-2",
       "description": "An intense courtroom scene.",
-      "imageUrl": "https://images.unsplash.com/photo-1568092806323-8ec13dfa9b92?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjb3VydHJvb20lMjBkcmFtYXxlbnwwfHx8fDE3NjI0NDkzMTZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1724315069759-3bac28f679f6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxjb3VydHJvb20lMjBkcmFtYXxlbnwwfHx8fDE3NjI1OTI1NDV8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "courtroom drama"
     },
     {
       "id": "thumb-scifi-1",
       "description": "An astronaut floating in space.",
-      "imageUrl": "https://images.unsplash.com/photo-1712512161827-76596122c52c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxhc3Ryb25hdXQlMjBzcGFjZXxlbnwwfHx8fDE3NjI0MDA0MTR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1712512162273-2a622d8b0c74?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxhc3Ryb25hdXQlMjBzcGFjZXxlbnwwfHx8fDE3NjI2MDkxMzh8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "astronaut space"
     },
     {
       "id": "thumb-scifi-2",
       "description": "A robot looking at a sunset.",
-      "imageUrl": "https://images.unsplash.com/photo-1563207153-f403bf289096?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxyb2JvdCUyMHN1bnNldHxlbnwwfHx8fDE3NjI0NDk2NzN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1711837325866-1250a8378928?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxyb2JvdCUyMHN1bnNldHxlbnwwfHx8fDE3NjI2MTA0MzV8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "robot sunset"
     },
     {
       "id": "thumb-thriller-1",
       "description": "A shadowy figure in a dark alley.",
-      "imageUrl": "https://images.unsplash.com/photo-1639579392989-80a5a1b9cbb7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxkYXJrJTIwYWxsZXl8ZW58MHx8fHwxNzYyNDMwMTMyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1587994866595-2a122522faed?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkYXJrJTIwYWxsZXl8ZW58MHx8fHwxNzYyNTQ2ODQ2fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "dark alley"
     },
     {
       "id": "thumb-romance-1",
       "description": "A couple walking on a beach at sunset.",
-      "imageUrl": "https://images.unsplash.com/photo-1701401968817-b875db0d9257?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxjb3VwbGUlMjBiZWFjaHxlbnwwfHx8fDE3NjIzNTc0NTF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1576595014186-c66433362597?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxjb3VwbGUlMjBiZWFjaHxlbnwwfHx8fDE3NjI0OTI0MjN8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "couple beach"
+    },
+    {
+      "id": "thumb-nature-1",
+      "description": "A vibrant coral reef.",
+      "imageUrl": "https://images.unsplash.com/photo-1546500840-ae38253aba9b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxjb3JhbCUyMHJlZWZ8ZW58MHx8fHwxNzYyNTk4MzYzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "coral reef"
+    },
+    {
+      "id": "thumb-cooking-1",
+      "description": "Freshly made pasta.",
+      "imageUrl": "https://images.unsplash.com/photo-1601751911508-fd69ffc08fa2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8ZnJlc2glMjBwYXN0YXxlbnwwfHx8fDE3NjI2MDQzMjN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fresh pasta"
+    },
+    {
+      "id": "thumb-gaming-1",
+      "description": "A complex strategy board.",
+      "imageUrl": "https://images.unsplash.com/photo-1677816156349-5fa568399cce?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzdHJhdGVneSUyMGdhbWV8ZW58MHx8fHwxNzYyNTU4NjI2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "strategy game"
+    },
+    {
+      "id": "thumb-gaming-2",
+      "description": "A character from a fantasy RPG.",
+      "imageUrl": "https://images.unsplash.com/photo-1758862493208-2046897d09d9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxmYW50YXN5JTIwY2hhcmFjdGVyfGVufDB8fHx8MTc2MjYwMTgzNHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fantasy character"
+    },
+    {
+      "id": "thumb-science-1",
+      "description": "An atom structure model.",
+      "imageUrl": "https://images.unsplash.com/photo-1693237396552-91b5d6a9cd2a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhdG9tJTIwbW9kZWx8ZW58MHx8fHwxNzYyNTMwNzA2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "atom model"
+    },
+    {
+      "id": "thumb-music-1",
+      "description": "A person playing an acoustic guitar.",
+      "imageUrl": "https://images.unsplash.com/photo-1630110330918-ced8a801add8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxhY291c3RpYyUyMGd1aXRhcnxlbnwwfHx8fDE3NjI1NTM3ODR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "acoustic guitar"
+    },
+    {
+      "id": "thumb-artist-1",
+      "description": "A painter's palette with various colors.",
+      "imageUrl": "https://images.unsplash.com/photo-1618513462042-29ac20aefe11?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxwYWludCUyMHBhbGV0dGV8ZW58MHx8fHwxNzYyNjEwNDM0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "paint palette"
     }
   ]
 }

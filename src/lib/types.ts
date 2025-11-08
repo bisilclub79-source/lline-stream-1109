@@ -30,6 +30,7 @@ export interface Category {
 export interface Video {
   id: string;
   title: string;
+  name?: string; // for new videos
   description: string;
   duration: number; // in seconds
   thumbnailId: string;
