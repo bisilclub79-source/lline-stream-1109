@@ -150,7 +150,9 @@ export default function Header() {
     </nav>
   );
 
-  const MobileNav = () => (
+  const MobileNav = () => {
+    const isAdmin = user?.isAdmin;
+    return (
      <Sheet open={isMobileMenuOpen} onOpenChange={setMobileMenuOpen}>
         <SheetTrigger asChild>
            <Button variant="ghost" size="icon" className="md:hidden">
@@ -173,10 +175,16 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
+             {isAdmin && (
+                <Link href="/admin" className="text-muted-foreground hover:text-foreground" onClick={() => setMobileMenuOpen(false)}>
+                    Dashboard
+                </Link>
+            )}
           </nav>
         </SheetContent>
       </Sheet>
-  );
+    );
+  }
 
 
   return (
