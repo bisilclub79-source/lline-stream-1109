@@ -8,10 +8,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Lock, PlayCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import Link from 'next/link';
 
 // Mock function to get current user. In a real app this would come from a session.
 async function getCurrentUser() {
-    return getUserById('user-subscribed');
+    return getUserById('user-subscribed-pro');
 }
 
 
