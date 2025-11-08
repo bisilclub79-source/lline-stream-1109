@@ -214,7 +214,7 @@ export default function PricingPage() {
             channelKey: 'channel-key-317044ec-1dc4-4dfd-8e4f-ae84ba732142',
             paymentId,
             orderName,
-            totalAmount,
+            totalAmount: Math.round(totalAmount),
             customer: {
                 customerId: user.uid,
                 fullName: user.displayName || '고객',
@@ -424,3 +424,5 @@ export default function PricingPage() {
     </div>
   );
 }
+
+    
