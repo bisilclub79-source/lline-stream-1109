@@ -215,6 +215,7 @@ export default function PricingPage() {
             paymentId,
             orderName,
             totalAmount: Math.round(totalAmount),
+            currency: 'KRW',
             customer: {
                 customerId: user.uid,
                 fullName: user.displayName || '고객',
@@ -424,5 +425,3 @@ export default function PricingPage() {
     </div>
   );
 }
-
-    
