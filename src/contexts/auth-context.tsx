@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Mock signup, just logs in the "free user" for demonstration
   const signup = async (displayName: string) => {
     setLoading(true);
-    const freeUser = await getUserById('user-free');
+    const freeUser = await getUserById('user-free-new');
      if (freeUser) {
         const newUser = { ...freeUser, displayName };
         setUser(newUser);
