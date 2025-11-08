@@ -114,11 +114,8 @@ export default function Header() {
             Seed Database
         </Button>
       )}
-      <Button variant="outline" asChild>
-        <Link href="/login">Login</Link>
-      </Button>
       <Button asChild>
-        <Link href="/signup">Sign Up</Link>
+        <Link href="/login">Login</Link>
       </Button>
     </div>
   );
