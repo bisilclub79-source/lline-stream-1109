@@ -25,6 +25,7 @@ export interface Category {
   slug: string;
   parentId: string | null;
   children?: Category[];
+  thumbnailId?: string; // Add thumbnailId for category images
 }
 
 export interface Video {

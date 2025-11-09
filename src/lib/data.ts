@@ -164,10 +164,10 @@ export const users: User[] = [
 // --- CATEGORIES ---
 export const categories: Category[] = [
   // Level 1
-  { id: 'cat-1', name: 'Movies', slug: 'movies', parentId: null },
-  { id: 'cat-2', name: 'Educational', slug: 'educational', parentId: null },
-  { id: 'cat-3', name: 'Hobbies', slug: 'hobbies', parentId: null },
-  { id: 'cat-4', name: 'Documentaries', slug: 'documentaries', parentId: null },
+  { id: 'cat-1', name: 'Movies', slug: 'movies', parentId: null, thumbnailId: 'thumb-cat-movies' },
+  { id: 'cat-2', name: 'Educational', slug: 'educational', parentId: null, thumbnailId: 'thumb-cat-educational' },
+  { id: 'cat-3', name: 'Hobbies', slug: 'hobbies', parentId: null, thumbnailId: 'thumb-cat-hobbies' },
+  { id: 'cat-4', name: 'Documentaries', slug: 'documentaries', parentId: null, thumbnailId: 'thumb-cat-documentaries' },
 
   // Level 2 (Movies)
   { id: 'cat-1-1', name: 'Action', slug: 'action', parentId: 'cat-1' },

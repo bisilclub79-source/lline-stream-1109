@@ -11,7 +11,7 @@ import { getCategories, getVideos } from '@/lib/api';
 import VideoCard from '@/components/video-card';
 import { Card, CardContent } from '@/components/ui/card';
 import { placeholderImages } from '@/lib/placeholder-images';
-import { Clapperboard, Film } from 'lucide-react';
+import { Clapperboard } from 'lucide-react';
 import Link from 'next/link';
 
 export default async function Home() {
@@ -61,18 +61,36 @@ export default async function Home() {
           Explore Categories
         </h2>
         <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-          {categories.map((category) => (
-            <Link key={category.id} href={`/category/${category.slug}`}>
-              <Card className="group relative overflow-hidden transition-transform duration-300 hover:scale-105 hover:shadow-primary/20 hover:shadow-lg">
-                <CardContent className="flex flex-col items-center justify-center p-6 aspect-square">
-                    <Film className="h-12 w-12 text-primary group-hover:text-accent transition-colors" />
-                    <p className="mt-4 text-center font-semibold">{category.name}</p>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+          {categories.map((category) => {
+            const image = placeholderImages.find(p => p.id === category.thumbnailId);
+            return (
+              <Link key={category.id} href={`/category/${category.slug}`}>
+                <Card className="group relative overflow-hidden rounded-lg transition-transform duration-300 hover:scale-105 hover:shadow-primary/20 hover:shadow-lg">
+                  <CardContent className="p-0 aspect-square">
+                    {image ? (
+                        <Image
+                          src={image.imageUrl}
+                          alt={category.name}
+                          fill
+                          className="object-cover transition-transform duration-300 group-hover:scale-110"
+                          data-ai-hint={image.imageHint}
+                        />
+                    ): (
+                        <div className="flex h-full w-full items-center justify-center bg-muted">
+                            <Clapperboard className="h-12 w-12 text-muted-foreground" />
+                        </div>
+                    )}
+                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                     <div className="absolute bottom-0 left-0 p-4">
+                        <p className="font-bold text-white text-lg">{category.name}</p>
+                     </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            )
+          })}
             <Link href="/category/all">
-              <Card className="group relative overflow-hidden transition-transform duration-300 hover:scale-105 hover:shadow-primary/20 hover:shadow-lg bg-primary/10 border-dashed">
+              <Card className="group relative overflow-hidden transition-transform duration-300 hover:scale-105 hover:shadow-primary/20 hover:shadow-lg bg-muted border-dashed">
                 <CardContent className="flex flex-col items-center justify-center p-6 aspect-square">
                     <Clapperboard className="h-12 w-12 text-primary/80 group-hover:text-accent transition-colors" />
                     <p className="mt-4 text-center font-semibold text-primary/80">View All</p>

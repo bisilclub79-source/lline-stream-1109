@@ -3,9 +3,11 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbP
 import VideoCard from '@/components/video-card';
 import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
-import { Film } from 'lucide-react';
+import { Clapperboard } from 'lucide-react';
 import { categories as allCategories } from '@/lib/data';
 import React from 'react';
+import Image from 'next/image';
+import { placeholderImages } from '@/lib/placeholder-images';
 
 export default async function CategoryPage({ params }: { params: { slug: string[] } }) {
   const slug = params.slug || [];
@@ -15,20 +17,41 @@ export default async function CategoryPage({ params }: { params: { slug: string[
   let breadcrumbLinks = [{ name: 'Categories', href: '/category/all' }];
   let content;
 
+  const renderCategoryCard = (category: (typeof allCategories)[0]) => {
+    const image = placeholderImages.find(p => p.id === category.thumbnailId);
+    return (
+        <Link key={category.id} href={`/category/${category.slug}`}>
+            <Card className="group relative overflow-hidden rounded-lg transition-transform duration-300 hover:scale-105 hover:shadow-primary/20 hover:shadow-lg">
+                <CardContent className="p-0 aspect-video">
+                {image ? (
+                    <Image
+                        src={image.imageUrl}
+                        alt={category.name}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-110"
+                        data-ai-hint={image.imageHint}
+                        sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                    />
+                ): (
+                    <div className="flex h-full w-full items-center justify-center bg-muted">
+                        <Clapperboard className="h-12 w-12 text-muted-foreground" />
+                    </div>
+                )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    <div className="absolute bottom-0 left-0 p-4">
+                        <p className="font-bold text-white text-lg">{category.name}</p>
+                    </div>
+                </CardContent>
+            </Card>
+        </Link>
+    );
+  }
+
   if (isRoot) {
     const categories = await getCategories({level: 1});
     content = (
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-        {categories.map((category) => (
-          <Link key={category.id} href={`/category/${category.slug}`}>
-            <Card className="group relative overflow-hidden transition-transform duration-300 hover:scale-105 hover:shadow-primary/20 hover:shadow-lg">
-              <CardContent className="flex flex-col items-center justify-center p-6 aspect-square">
-                <Film className="h-12 w-12 text-primary group-hover:text-accent transition-colors" />
-                <p className="mt-4 text-center font-semibold">{category.name}</p>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+        {categories.map(renderCategoryCard)}
       </div>
     );
   } else {
@@ -60,17 +83,37 @@ export default async function CategoryPage({ params }: { params: { slug: string[
     if (subCategories.length > 0) {
       // It's a category page with sub-categories
       content = (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-          {subCategories.map((category) => (
-            <Link key={category.id} href={`/category/${fullPathSlugs.join('/')}/${category.slug}`}>
-              <Card className="group relative overflow-hidden transition-transform duration-300 hover:scale-105 hover:shadow-primary/20 hover:shadow-lg">
-                <CardContent className="flex flex-col items-center justify-center p-6 aspect-video">
-                  <Film className="h-10 w-10 text-primary" />
-                  <p className="mt-4 text-center font-semibold">{category.name}</p>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+          {subCategories.map((category) => {
+            const image = placeholderImages.find(p => p.id === category.thumbnailId);
+            const categoryLink = `/category/${fullPathSlugs.join('/')}/${category.slug}`;
+             return (
+                <Link key={category.id} href={categoryLink}>
+                    <Card className="group relative overflow-hidden rounded-lg transition-transform duration-300 hover:scale-105 hover:shadow-primary/20 hover:shadow-lg">
+                        <CardContent className="p-0 aspect-video">
+                        {image ? (
+                            <Image
+                                src={image.imageUrl}
+                                alt={category.name}
+                                fill
+                                className="object-cover transition-transform duration-300 group-hover:scale-110"
+                                data-ai-hint={image.imageHint}
+                                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                            />
+                        ): (
+                            <div className="flex h-full w-full items-center justify-center bg-muted">
+                                <Clapperboard className="h-10 w-10 text-muted-foreground" />
+                            </div>
+                        )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                            <div className="absolute bottom-0 left-0 p-4">
+                                <p className="font-semibold text-white">{category.name}</p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </Link>
+            )
+          })}
         </div>
       );
     } else {

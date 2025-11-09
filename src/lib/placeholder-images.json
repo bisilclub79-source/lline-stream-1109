@@ -107,6 +107,30 @@
       "description": "A painter's palette with various colors.",
       "imageUrl": "https://images.unsplash.com/photo-1618513462042-29ac20aefe11?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxwYWludCUyMHBhbGV0dGV8ZW58MHx8fHwxNzYyNjEwNDM0fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "paint palette"
+    },
+    {
+      "id": "thumb-cat-movies",
+      "description": "Vintage movie camera on a tripod.",
+      "imageUrl": "https://images.unsplash.com/photo-1536440136628-849c177E76a1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxtb3ZpZSUyMHRoZWF0ZXJ8ZW58MHx8fHwxNzYzMTI4ODgyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "movie theater"
+    },
+    {
+      "id": "thumb-cat-educational",
+      "description": "Person writing complex math formulas on a chalkboard.",
+      "imageUrl": "https://images.unsplash.com/photo-1509228468518-180dd4864904?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxlZHVjYXRpb25hbHxlbnwwfHx8fDE3NjMxMjg5MjB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "education learning"
+    },
+    {
+      "id": "thumb-cat-hobbies",
+      "description": "A collection of items representing various hobbies like painting, photography, and gardening.",
+      "imageUrl": "https://images.unsplash.com/photo-1487958449943-2429e8be8625?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxob2JiaWVzfGVufDB8fHx8MTc2MzEyODk0N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "hobbies creative"
+    },
+    {
+      "id": "thumb-cat-documentaries",
+      "description": "A stunning landscape of a mountain range at sunrise, representing nature and exploration.",
+      "imageUrl": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxuYXR1cmUlMjBsYW5kc2NhcGV8ZW58MHx8fHwxNzYzMTI4OTcxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "nature landscape"
     }
   ]
 }
