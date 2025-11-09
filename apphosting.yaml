@@ -5,6 +5,12 @@ runConfig:
   # Increase this value if you'd like to automatically spin up
   # more instances in response to increased traffic.
   maxInstances: 1
+build:
+  # The command to build your app
+  command: npm run build
+start:
+  # The command to start your app
+  command: npm run start
 env:
   - variable: PORTONE_API_SECRET
     value: "YOUR_PORTONE_API_SECRET" # 포트원 관리자 페이지 > API 설정에서 발급받은 API Secret Key
