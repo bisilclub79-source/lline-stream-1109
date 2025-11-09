@@ -41,11 +41,11 @@ export default async function Home() {
               CineStream
             </h1>
             <p className="mt-4 max-w-2xl mx-auto text-lg text-primary-foreground/80 sm:text-xl md:text-2xl">
-              Your personal universe of cinematic wonders.
+              Unlock Your Potential, One Lesson at a Time.
             </p>
             <div className="mt-8 flex justify-center gap-4">
               <Button asChild size="lg" className="font-bold">
-                <Link href="/signup">Start Watching</Link>
+                <Link href="/signup">Start Learning</Link>
               </Button>
               <Button asChild size="lg" variant="secondary" className="font-bold">
                 <Link href="/pricing">See Plans</Link>
