@@ -1,3 +1,13 @@
 # Settings to manage and configure a Firebase App Hosting backend.
 # https://firebase.google.com/docs/app-hosting/configure
+runConfig:
+  cpu: 1
+  memoryMiB: 1024
+serving:
+  server: main
+  public: /_next/static
+build:
+  commands:
+    - npm i
+    - npm run build
 location: asia-southeast1
